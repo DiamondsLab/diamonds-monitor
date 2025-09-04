@@ -68,6 +68,7 @@ export default [
       //   varsIgnorePattern: "^_",
       //   ignoreRestSiblings: true
       // }],
+      "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-explicit-any": "off",
       // Disable Prettier integration in ESLint to avoid formatting errors
       "prettier/prettier": "off",

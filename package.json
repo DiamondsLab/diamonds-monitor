@@ -11,8 +11,8 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
+    "build": "tsc --build",
+    "build:watch": "tsc --build --watch",
     "dev": "ts-node src/index.ts",
     "test": "mocha",
     "test:watch": "mocha --watch",

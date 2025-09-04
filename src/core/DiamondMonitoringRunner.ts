@@ -23,7 +23,7 @@ import {
   validateHardhatEnvironment,
   generateReport,
   ReportOptions
-} from '../utils';
+} from '../utils/index';
 import {
   MonitoringModule,
   TaskArgs,
@@ -67,7 +67,7 @@ export class DiamondMonitoringRunner {
 
     if (envValidation.warnings.length > 0 && verbose) {
       console.warn(chalk.yellow('⚠️  Environment warnings:'));
-      envValidation.warnings.forEach(warning => console.warn(chalk.yellow(`   • ${warning}`)));
+      envValidation.warnings.forEach((warning: string) => console.warn(chalk.yellow(`   • ${warning}`)));
     }
 
     console.log(chalk.blue(`🔍 Starting diamond monitoring for ${diamondName} on ${network}`));
