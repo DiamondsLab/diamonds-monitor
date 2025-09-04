@@ -1,6 +1,6 @@
 /**
  * Main Report Generator for Diamond Monitoring System
- * 
+ *
  * Orchestrates report generation across multiple formats with professional styling
  * and comprehensive output options.
  */
@@ -13,7 +13,7 @@ import {
   ReportOptions,
   ReportFormatter,
   ReportGenerationResult,
-  ReportValidationResult
+  ReportValidationResult,
 } from './types';
 
 // Import formatters
@@ -28,7 +28,7 @@ import { CSVFormatter } from './formatters/CSVFormatter';
  */
 export class ReportGenerator {
   private static formatters: Map<ReportFormat, ReportFormatter> = new Map();
-  
+
   static {
     // Register all formatters
     this.registerFormatter(ReportFormat.CONSOLE, new ConsoleFormatter());
@@ -81,14 +81,14 @@ export class ReportGenerator {
 
       if (outputPath) {
         finalOutputPath = this.resolveOutputPath(outputPath, format, mergedOptions);
-        
+
         // Ensure directory exists
         const dir = path.dirname(finalOutputPath);
         await fs.mkdir(dir, { recursive: true });
 
         // Save the report
         await this.saveReport(content, finalOutputPath, format);
-        
+
         // Get file size
         const stats = await fs.stat(finalOutputPath);
         fileSize = stats.size;
@@ -102,17 +102,16 @@ export class ReportGenerator {
         filePath: finalOutputPath,
         duration,
         fileSize,
-        warnings
+        warnings,
       };
-
     } catch (error) {
       const duration = Date.now() - startTime;
-      
+
       return {
         success: false,
         duration,
         error: (error as Error).message,
-        warnings
+        warnings,
       };
     }
   }
@@ -138,7 +137,6 @@ export class ReportGenerator {
 
       // Set appropriate permissions
       await fs.chmod(outputPath, 0o644);
-
     } catch (error) {
       throw new Error(`Failed to save report to ${outputPath}: ${(error as Error).message}`);
     }
@@ -161,7 +159,7 @@ export class ReportGenerator {
     const results: ReportGenerationResult[] = [];
 
     for (const format of formats) {
-      const outputPath = outputDir 
+      const outputPath = outputDir
         ? path.join(outputDir, this.getDefaultFilename(report, format, options))
         : undefined;
 
@@ -185,7 +183,9 @@ export class ReportGenerator {
    * @param format - The format to get info for
    * @returns Formatter information
    */
-  public static getFormatterInfo(format: ReportFormat): Pick<ReportFormatter, 'id' | 'name' | 'extension' | 'mimeType'> | null {
+  public static getFormatterInfo(
+    format: ReportFormat
+  ): Pick<ReportFormatter, 'id' | 'name' | 'extension' | 'mimeType'> | null {
     const formatter = this.formatters.get(format);
     if (!formatter) return null;
 
@@ -193,7 +193,7 @@ export class ReportGenerator {
       id: formatter.id,
       name: formatter.name,
       extension: formatter.extension,
-      mimeType: formatter.mimeType
+      mimeType: formatter.mimeType,
     };
   }
 
@@ -203,13 +203,16 @@ export class ReportGenerator {
    * @param options - Options to validate
    * @returns Validation result
    */
-  public static validateOptions(format: ReportFormat, options?: ReportOptions): ReportValidationResult {
+  public static validateOptions(
+    format: ReportFormat,
+    options?: ReportOptions
+  ): ReportValidationResult {
     const formatter = this.getFormatter(format);
     if (!formatter) {
       return {
         isValid: false,
         errors: [`Unsupported format: ${format}`],
-        warnings: []
+        warnings: [],
       };
     }
 
@@ -245,7 +248,10 @@ export class ReportGenerator {
   /**
    * Merge default options with provided options
    */
-  private static mergeDefaultOptions(options?: ReportOptions, format?: ReportFormat): ReportOptions {
+  private static mergeDefaultOptions(
+    options?: ReportOptions,
+    format?: ReportFormat
+  ): ReportOptions {
     const defaults: ReportOptions = {
       includeDetails: true,
       colorOutput: format === ReportFormat.CONSOLE,
@@ -257,7 +263,7 @@ export class ReportGenerator {
       interactive: format === ReportFormat.HTML,
       includeCharts: format === ReportFormat.HTML,
       compact: false,
-      timestampInFilename: false
+      timestampInFilename: false,
     };
 
     return { ...defaults, ...options };
@@ -310,7 +316,7 @@ export class ReportGenerator {
 
     const sanitizedDiamondName = report.diamond.name.replace(/[^a-zA-Z0-9]/g, '_');
     const sanitizedNetworkName = report.network.name.replace(/[^a-zA-Z0-9]/g, '_');
-    
+
     let basename = `diamond-monitoring-${sanitizedDiamondName}-${sanitizedNetworkName}`;
 
     // Add timestamp if requested

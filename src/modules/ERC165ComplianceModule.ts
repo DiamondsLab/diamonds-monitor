@@ -1,6 +1,6 @@
 /**
  * ERC165 Compliance Monitoring Module for Hardhat Diamond Monitor Plugin
- * 
+ *
  * Monitors ERC165 interface support compliance, ensuring proper interface
  * declarations and standard compliance across the diamond contract.
  */
@@ -16,7 +16,7 @@ import {
   NetworkInfo,
   ConfigRequirement,
   ValidationResult,
-  MonitoringStatus
+  MonitoringStatus,
 } from '../core/types';
 
 /**
@@ -61,14 +61,15 @@ interface ERC165ComplianceModuleConfig {
 
 /**
  * ERC165 Compliance Monitoring Module
- * 
+ *
  * Monitors ERC165 interface support and standard compliance across
  * various Ethereum standards implemented in the diamond contract.
  */
 export class ERC165ComplianceModule implements MonitoringModule {
   public readonly id = 'erc165-compliance';
   public readonly name = 'ERC165 Compliance Monitoring';
-  public readonly description = 'Monitors ERC165 interface support and standard compliance across implemented interfaces';
+  public readonly description =
+    'Monitors ERC165 interface support and standard compliance across implemented interfaces';
   public readonly version = '1.0.0';
   public readonly category = 'compliance';
 
@@ -76,7 +77,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
   private readonly standardInterfaces = {
     // Core interfaces
     ERC165: '0x01ffc9a7',
-    
+
     // Token standards
     ERC20: '0x36372b07',
     ERC721: '0x80ac58cd',
@@ -84,35 +85,42 @@ export class ERC165ComplianceModule implements MonitoringModule {
     ERC721_ENUMERABLE: '0x780e9d63',
     ERC1155: '0xd9b67a26',
     ERC1155_METADATA: '0x0e89341c',
-    
+
     // Diamond standards
     DIAMOND_CUT: '0x1f931c1c',
     DIAMOND_LOUPE: '0x48e2b093',
-    
+
     // Access control
     ACCESS_CONTROL: '0x7965db0b',
     ACCESS_CONTROL_ENUMERABLE: '0x5a05180f',
-    
+
     // Extensions
     OWNABLE: '0x7f5828d0',
     PAUSABLE: '0x5c975abb',
-    
+
     // Governance
     GOVERNANCE: '0x6ba42aaa',
     VOTES: '0xe90fb3f6',
-    
+
     // Royalty
-    ERC2981: '0x2a55205a' // NFT Royalty Standard
+    ERC2981: '0x2a55205a', // NFT Royalty Standard
   };
 
   // Interface categories for better organization
   private readonly interfaceCategories = {
     core: ['ERC165'],
-    tokens: ['ERC20', 'ERC721', 'ERC721_METADATA', 'ERC721_ENUMERABLE', 'ERC1155', 'ERC1155_METADATA'],
+    tokens: [
+      'ERC20',
+      'ERC721',
+      'ERC721_METADATA',
+      'ERC721_ENUMERABLE',
+      'ERC1155',
+      'ERC1155_METADATA',
+    ],
     diamond: ['DIAMOND_CUT', 'DIAMOND_LOUPE'],
     access: ['ACCESS_CONTROL', 'ACCESS_CONTROL_ENUMERABLE', 'OWNABLE'],
     extensions: ['PAUSABLE', 'ERC2981'],
-    governance: ['GOVERNANCE', 'VOTES']
+    governance: ['GOVERNANCE', 'VOTES'],
   };
 
   /**
@@ -125,42 +133,42 @@ export class ERC165ComplianceModule implements MonitoringModule {
         type: 'boolean',
         required: false,
         description: 'Whether ERC165 support is mandatory',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'requiredInterfaces',
         type: 'array',
         required: false,
-        description: 'List of interface IDs that must be supported'
+        description: 'List of interface IDs that must be supported',
       },
       {
         key: 'checkStandardCompliance',
         type: 'boolean',
         required: false,
         description: 'Whether to check compliance with standard interfaces',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'checkDiamondStandards',
         type: 'boolean',
         required: false,
         description: 'Whether to check diamond standard compliance',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'allowPartialCompliance',
         type: 'boolean',
         required: false,
         description: 'Whether partial compliance is acceptable',
-        defaultValue: false
+        defaultValue: false,
       },
       {
         key: 'minimumComplianceScore',
         type: 'number',
         required: false,
         description: 'Minimum compliance score (0-100) required',
-        defaultValue: 80
-      }
+        defaultValue: 80,
+      },
     ];
   }
 
@@ -172,7 +180,12 @@ export class ERC165ComplianceModule implements MonitoringModule {
     const warnings: string[] = [];
 
     // Validate boolean fields
-    const booleanFields = ['enforceERC165Support', 'checkStandardCompliance', 'checkDiamondStandards', 'allowPartialCompliance'];
+    const booleanFields = [
+      'enforceERC165Support',
+      'checkStandardCompliance',
+      'checkDiamondStandards',
+      'allowPartialCompliance',
+    ];
     for (const field of booleanFields) {
       if (config[field] !== undefined && typeof config[field] !== 'boolean') {
         errors.push(`${field} must be a boolean`);
@@ -181,7 +194,11 @@ export class ERC165ComplianceModule implements MonitoringModule {
 
     // Validate compliance score
     if (config.minimumComplianceScore !== undefined) {
-      if (typeof config.minimumComplianceScore !== 'number' || config.minimumComplianceScore < 0 || config.minimumComplianceScore > 100) {
+      if (
+        typeof config.minimumComplianceScore !== 'number' ||
+        config.minimumComplianceScore < 0 ||
+        config.minimumComplianceScore > 100
+      ) {
         errors.push('minimumComplianceScore must be a number between 0 and 100');
       }
     }
@@ -197,7 +214,9 @@ export class ERC165ComplianceModule implements MonitoringModule {
       } else {
         for (const iface of config.customInterfaces) {
           if (!iface.interfaceId || !iface.name || typeof iface.required !== 'boolean') {
-            errors.push('customInterfaces items must have interfaceId, name, and required properties');
+            errors.push(
+              'customInterfaces items must have interfaceId, name, and required properties'
+            );
             break;
           }
         }
@@ -207,7 +226,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -234,14 +253,16 @@ export class ERC165ComplianceModule implements MonitoringModule {
 
       // Check ERC165 support requirement
       if (moduleConfig.enforceERC165Support && !analysis.supportsERC165) {
-        issues.push(this.createIssue(
-          'missing-erc165',
-          'Missing ERC165 Support',
-          'Contract does not support ERC165 interface detection',
-          SeverityLevel.ERROR,
-          'erc165-support',
-          'Implement ERC165 interface support for better interoperability'
-        ));
+        issues.push(
+          this.createIssue(
+            'missing-erc165',
+            'Missing ERC165 Support',
+            'Contract does not support ERC165 interface detection',
+            SeverityLevel.ERROR,
+            'erc165-support',
+            'Implement ERC165 interface support for better interoperability'
+          )
+        );
       }
 
       // Check standard compliance
@@ -261,30 +282,41 @@ export class ERC165ComplianceModule implements MonitoringModule {
 
       // Check custom interfaces
       if (moduleConfig.customInterfaces) {
-        const customIssues = await this.checkCustomInterfaces(analysis, moduleConfig.customInterfaces, context);
+        const customIssues = await this.checkCustomInterfaces(
+          analysis,
+          moduleConfig.customInterfaces,
+          context
+        );
         issues.push(...customIssues);
       }
 
       // Check compliance score
-      if (moduleConfig.minimumComplianceScore && analysis.complianceScore < moduleConfig.minimumComplianceScore) {
+      if (
+        moduleConfig.minimumComplianceScore &&
+        analysis.complianceScore < moduleConfig.minimumComplianceScore
+      ) {
         if (!moduleConfig.allowPartialCompliance) {
-          issues.push(this.createIssue(
-            'low-compliance-score',
-            'Low Compliance Score',
-            `Compliance score ${analysis.complianceScore}% is below minimum ${moduleConfig.minimumComplianceScore}%`,
-            SeverityLevel.ERROR,
-            'compliance-score',
-            'Implement missing interfaces to improve compliance'
-          ));
+          issues.push(
+            this.createIssue(
+              'low-compliance-score',
+              'Low Compliance Score',
+              `Compliance score ${analysis.complianceScore}% is below minimum ${moduleConfig.minimumComplianceScore}%`,
+              SeverityLevel.ERROR,
+              'compliance-score',
+              'Implement missing interfaces to improve compliance'
+            )
+          );
         } else {
-          issues.push(this.createIssue(
-            'partial-compliance',
-            'Partial Compliance',
-            `Compliance score ${analysis.complianceScore}% is below target ${moduleConfig.minimumComplianceScore}%`,
-            SeverityLevel.WARNING,
-            'compliance-score',
-            'Consider implementing additional interfaces for better compliance'
-          ));
+          issues.push(
+            this.createIssue(
+              'partial-compliance',
+              'Partial Compliance',
+              `Compliance score ${analysis.complianceScore}% is below target ${moduleConfig.minimumComplianceScore}%`,
+              SeverityLevel.WARNING,
+              'compliance-score',
+              'Consider implementing additional interfaces for better compliance'
+            )
+          );
         }
       }
 
@@ -292,33 +324,41 @@ export class ERC165ComplianceModule implements MonitoringModule {
       this.log(context, 'info', `✅ ERC165 compliance monitoring completed in ${executionTime}ms`);
 
       return {
-        status: issues.some(i => i.severity === SeverityLevel.ERROR || i.severity === SeverityLevel.CRITICAL) 
-          ? MonitoringStatus.FAIL : MonitoringStatus.PASS,
+        status: issues.some(
+          i => i.severity === SeverityLevel.ERROR || i.severity === SeverityLevel.CRITICAL
+        )
+          ? MonitoringStatus.FAIL
+          : MonitoringStatus.PASS,
         issues,
         executionTime,
         metadata: {
           analysis,
-          moduleConfig
-        }
+          moduleConfig,
+        },
       };
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      this.log(context, 'error', `❌ ERC165 compliance monitoring failed: ${(error as Error).message}`);
+      this.log(
+        context,
+        'error',
+        `❌ ERC165 compliance monitoring failed: ${(error as Error).message}`
+      );
 
-      issues.push(this.createIssue(
-        'erc165-compliance-error',
-        'ERC165 Compliance Monitoring Failed',
-        `Failed to analyze ERC165 compliance: ${(error as Error).message}`,
-        SeverityLevel.ERROR,
-        'execution'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc165-compliance-error',
+          'ERC165 Compliance Monitoring Failed',
+          `Failed to analyze ERC165 compliance: ${(error as Error).message}`,
+          SeverityLevel.ERROR,
+          'execution'
+        )
+      );
 
       return {
         status: MonitoringStatus.FAIL,
         issues,
         executionTime,
-        metadata: { error: (error as Error).message }
+        metadata: { error: (error as Error).message },
       };
     }
   }
@@ -326,39 +366,49 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Analyze ERC165 compliance for the diamond
    */
-  private async analyzeERC165Compliance(context: MonitoringContext): Promise<ERC165ComplianceAnalysis> {
+  private async analyzeERC165Compliance(
+    context: MonitoringContext
+  ): Promise<ERC165ComplianceAnalysis> {
     const { diamond, provider } = context;
-    
+
     const analysis: ERC165ComplianceAnalysis = {
       supportsERC165: false,
       supportedInterfaces: [],
       unsupportedRequiredInterfaces: [],
       totalInterfacesChecked: 0,
       complianceScore: 0,
-      complianceIssues: []
+      complianceIssues: [],
     };
 
     // First check if ERC165 is supported
-    analysis.supportsERC165 = await this.checkInterfaceSupport(diamond.address, this.standardInterfaces.ERC165, provider);
+    analysis.supportsERC165 = await this.checkInterfaceSupport(
+      diamond.address,
+      this.standardInterfaces.ERC165,
+      provider
+    );
 
     // Check all standard interfaces
     const interfacesToCheck: InterfaceInfo[] = [];
-    
+
     for (const [name, interfaceId] of Object.entries(this.standardInterfaces)) {
       interfacesToCheck.push({
         interfaceId,
         name,
         isSupported: false,
         isRequired: false, // Will be set based on configuration
-        standard: this.getInterfaceStandard(name)
+        standard: this.getInterfaceStandard(name),
       });
     }
 
     // Check interface support
     for (const iface of interfacesToCheck) {
-      iface.isSupported = await this.checkInterfaceSupport(diamond.address, iface.interfaceId, provider);
+      iface.isSupported = await this.checkInterfaceSupport(
+        diamond.address,
+        iface.interfaceId,
+        provider
+      );
       analysis.totalInterfacesChecked++;
-      
+
       if (iface.isSupported) {
         analysis.supportedInterfaces.push(iface);
       }
@@ -366,9 +416,10 @@ export class ERC165ComplianceModule implements MonitoringModule {
 
     // Calculate compliance score
     const supportedCount = analysis.supportedInterfaces.length;
-    analysis.complianceScore = analysis.totalInterfacesChecked > 0 
-      ? Math.round((supportedCount / analysis.totalInterfacesChecked) * 100) 
-      : 0;
+    analysis.complianceScore =
+      analysis.totalInterfacesChecked > 0
+        ? Math.round((supportedCount / analysis.totalInterfacesChecked) * 100)
+        : 0;
 
     return analysis;
   }
@@ -376,17 +427,23 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Check if a specific interface is supported
    */
-  private async checkInterfaceSupport(address: string, interfaceId: string, provider: ethers.Provider): Promise<boolean> {
+  private async checkInterfaceSupport(
+    address: string,
+    interfaceId: string,
+    provider: ethers.Provider
+  ): Promise<boolean> {
     try {
       // Ensure address is properly formatted
       if (!ethers.isAddress(address)) {
         return false;
       }
-      
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function supportsInterface(bytes4 interfaceId) view returns (bool)'
-      ], provider);
-      
+
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        ['function supportsInterface(bytes4 interfaceId) view returns (bool)'],
+        provider
+      );
+
       return await contract.supportsInterface(interfaceId);
     } catch {
       return false;
@@ -418,43 +475,53 @@ export class ERC165ComplianceModule implements MonitoringModule {
       .map(iface => iface.name);
 
     if (implementedTokenStandards.length > 1) {
-      issues.push(this.createIssue(
-        'multiple-token-standards',
-        'Multiple Token Standards',
-        `Contract implements multiple token standards: ${implementedTokenStandards.join(', ')}`,
-        SeverityLevel.WARNING,
-        'standard-compliance',
-        'Ensure proper separation and avoid conflicts between different token standards'
-      ));
+      issues.push(
+        this.createIssue(
+          'multiple-token-standards',
+          'Multiple Token Standards',
+          `Contract implements multiple token standards: ${implementedTokenStandards.join(', ')}`,
+          SeverityLevel.WARNING,
+          'standard-compliance',
+          'Ensure proper separation and avoid conflicts between different token standards'
+        )
+      );
     }
 
     // Check for incomplete standard implementations
     const erc721Supported = analysis.supportedInterfaces.some(iface => iface.name === 'ERC721');
-    const erc721MetadataSupported = analysis.supportedInterfaces.some(iface => iface.name === 'ERC721_METADATA');
-    
+    const erc721MetadataSupported = analysis.supportedInterfaces.some(
+      iface => iface.name === 'ERC721_METADATA'
+    );
+
     if (erc721Supported && !erc721MetadataSupported) {
-      issues.push(this.createIssue(
-        'incomplete-erc721',
-        'Incomplete ERC721 Implementation',
-        'ERC721 is supported but ERC721Metadata is not',
-        SeverityLevel.WARNING,
-        'standard-compliance',
-        'Implement ERC721Metadata for complete NFT standard compliance'
-      ));
+      issues.push(
+        this.createIssue(
+          'incomplete-erc721',
+          'Incomplete ERC721 Implementation',
+          'ERC721 is supported but ERC721Metadata is not',
+          SeverityLevel.WARNING,
+          'standard-compliance',
+          'Implement ERC721Metadata for complete NFT standard compliance'
+        )
+      );
     }
 
     const erc1155Supported = analysis.supportedInterfaces.some(iface => iface.name === 'ERC1155');
-    const erc1155MetadataSupported = analysis.supportedInterfaces.some(iface => iface.name === 'ERC1155_METADATA');
-    
+    const erc1155MetadataSupported = analysis.supportedInterfaces.some(
+      iface => iface.name === 'ERC1155_METADATA'
+    );
+
     if (erc1155Supported && !erc1155MetadataSupported) {
-      issues.push(this.createIssue(
-        'incomplete-erc1155',
-        'Incomplete ERC1155 Implementation',
-        'ERC1155 is supported but ERC1155MetadataURI is not',
-        SeverityLevel.WARNING,
-        'standard-compliance',
-        'Implement ERC1155MetadataURI for complete multi-token standard compliance'
-      ));
+      issues.push(
+        this.createIssue(
+          'incomplete-erc1155',
+          'Incomplete ERC1155 Implementation',
+          'ERC1155 is supported but ERC1155MetadataURI is not',
+          SeverityLevel.WARNING,
+          'standard-compliance',
+          'Implement ERC1155MetadataURI for complete multi-token standard compliance'
+        )
+      );
     }
 
     return issues;
@@ -466,29 +533,37 @@ export class ERC165ComplianceModule implements MonitoringModule {
   private checkDiamondStandards(analysis: ERC165ComplianceAnalysis): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
-    const diamondCutSupported = analysis.supportedInterfaces.some(iface => iface.name === 'DIAMOND_CUT');
-    const diamondLoupeSupported = analysis.supportedInterfaces.some(iface => iface.name === 'DIAMOND_LOUPE');
+    const diamondCutSupported = analysis.supportedInterfaces.some(
+      iface => iface.name === 'DIAMOND_CUT'
+    );
+    const diamondLoupeSupported = analysis.supportedInterfaces.some(
+      iface => iface.name === 'DIAMOND_LOUPE'
+    );
 
     if (!diamondCutSupported) {
-      issues.push(this.createIssue(
-        'missing-diamond-cut',
-        'Missing Diamond Cut Interface',
-        'Diamond does not declare support for DiamondCut interface',
-        SeverityLevel.WARNING,
-        'diamond-compliance',
-        'Implement ERC165 support for DiamondCut interface'
-      ));
+      issues.push(
+        this.createIssue(
+          'missing-diamond-cut',
+          'Missing Diamond Cut Interface',
+          'Diamond does not declare support for DiamondCut interface',
+          SeverityLevel.WARNING,
+          'diamond-compliance',
+          'Implement ERC165 support for DiamondCut interface'
+        )
+      );
     }
 
     if (!diamondLoupeSupported) {
-      issues.push(this.createIssue(
-        'missing-diamond-loupe',
-        'Missing Diamond Loupe Interface',
-        'Diamond does not declare support for DiamondLoupe interface',
-        SeverityLevel.WARNING,
-        'diamond-compliance',
-        'Implement ERC165 support for DiamondLoupe interface'
-      ));
+      issues.push(
+        this.createIssue(
+          'missing-diamond-loupe',
+          'Missing Diamond Loupe Interface',
+          'Diamond does not declare support for DiamondLoupe interface',
+          SeverityLevel.WARNING,
+          'diamond-compliance',
+          'Implement ERC165 support for DiamondLoupe interface'
+        )
+      );
     }
 
     return issues;
@@ -497,21 +572,28 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Check required interfaces
    */
-  private checkRequiredInterfaces(analysis: ERC165ComplianceAnalysis, requiredInterfaces: string[]): MonitoringIssue[] {
+  private checkRequiredInterfaces(
+    analysis: ERC165ComplianceAnalysis,
+    requiredInterfaces: string[]
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     for (const requiredInterfaceId of requiredInterfaces) {
-      const isSupported = analysis.supportedInterfaces.some(iface => iface.interfaceId === requiredInterfaceId);
-      
+      const isSupported = analysis.supportedInterfaces.some(
+        iface => iface.interfaceId === requiredInterfaceId
+      );
+
       if (!isSupported) {
-        issues.push(this.createIssue(
-          'missing-required-interface',
-          'Missing Required Interface',
-          `Required interface ${requiredInterfaceId} is not supported`,
-          SeverityLevel.ERROR,
-          'required-interfaces',
-          'Implement the required interface and declare it in supportsInterface'
-        ));
+        issues.push(
+          this.createIssue(
+            'missing-required-interface',
+            'Missing Required Interface',
+            `Required interface ${requiredInterfaceId} is not supported`,
+            SeverityLevel.ERROR,
+            'required-interfaces',
+            'Implement the required interface and declare it in supportsInterface'
+          )
+        );
       }
     }
 
@@ -522,7 +604,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
    * Check custom interfaces
    */
   private async checkCustomInterfaces(
-    analysis: ERC165ComplianceAnalysis, 
+    analysis: ERC165ComplianceAnalysis,
     customInterfaces: Array<{ interfaceId: string; name: string; required: boolean }>,
     context: MonitoringContext
   ): Promise<MonitoringIssue[]> {
@@ -530,20 +612,22 @@ export class ERC165ComplianceModule implements MonitoringModule {
 
     for (const customInterface of customInterfaces) {
       const isSupported = await this.checkInterfaceSupport(
-        context.diamond.address, 
-        customInterface.interfaceId, 
+        context.diamond.address,
+        customInterface.interfaceId,
         context.provider
       );
 
       if (customInterface.required && !isSupported) {
-        issues.push(this.createIssue(
-          'missing-custom-interface',
-          'Missing Custom Interface',
-          `Required custom interface ${customInterface.name} (${customInterface.interfaceId}) is not supported`,
-          SeverityLevel.ERROR,
-          'custom-interfaces',
-          'Implement the custom interface and declare it in supportsInterface'
-        ));
+        issues.push(
+          this.createIssue(
+            'missing-custom-interface',
+            'Missing Custom Interface',
+            `Required custom interface ${customInterface.name} (${customInterface.interfaceId}) is not supported`,
+            SeverityLevel.ERROR,
+            'custom-interfaces',
+            'Implement the custom interface and declare it in supportsInterface'
+          )
+        );
       }
 
       if (isSupported) {
@@ -553,7 +637,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
           name: customInterface.name,
           isSupported: true,
           isRequired: customInterface.required,
-          standard: 'custom'
+          standard: 'custom',
         });
       }
     }
@@ -587,7 +671,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
       description,
       severity,
       category,
-      recommendation
+      recommendation,
     };
   }
 }

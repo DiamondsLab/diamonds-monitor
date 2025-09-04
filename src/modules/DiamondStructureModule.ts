@@ -1,6 +1,6 @@
 /**
  * Diamond Structure Monitoring Module for Hardhat Diamond Monitor Plugin
- * 
+ *
  * Monitors the overall structure and integrity of the diamond proxy.
  * This module checks fundamental diamond properties, facet relationships,
  * and structural consistency.
@@ -19,7 +19,7 @@ import {
   MonitoringIssue,
   DiamondInfo,
   NetworkInfo,
-  ValidationResult
+  ValidationResult,
 } from '../core/types';
 
 /**
@@ -63,13 +63,14 @@ interface DiamondStructureModuleConfig {
 
 /**
  * Diamond Structure Monitoring Module for Hardhat Plugin
- * 
+ *
  * Performs comprehensive structural monitoring of diamond proxy contracts.
  */
 export class DiamondStructureModule implements MonitoringModule {
   public readonly id = 'diamond-structure';
   public readonly name = 'Diamond Structure Monitoring';
-  public readonly description = 'Monitors diamond proxy structure, facet relationships, and core functionality';
+  public readonly description =
+    'Monitors diamond proxy structure, facet relationships, and core functionality';
   public readonly version = '1.0.0';
   public readonly category = 'structural';
 
@@ -80,21 +81,21 @@ export class DiamondStructureModule implements MonitoringModule {
       facets: '0x7a0ed627',
       facetFunctionSelectors: '0xadfca15e',
       facetAddresses: '0x52ef6b2c',
-      facetAddress: '0xcdffacc6'
+      facetAddress: '0xcdffacc6',
     },
     // DiamondCut
     diamondCut: {
-      diamondCut: '0x1f931c1c'
+      diamondCut: '0x1f931c1c',
     },
     // Ownership
     ownership: {
       owner: '0x8da5cb5b',
-      transferOwnership: '0xf2fde38b'
+      transferOwnership: '0xf2fde38b',
     },
     // ERC165
     erc165: {
-      supportsInterface: '0x01ffc9a7'
-    }
+      supportsInterface: '0x01ffc9a7',
+    },
   };
 
   // Standard diamond ABIs
@@ -103,18 +104,16 @@ export class DiamondStructureModule implements MonitoringModule {
       'function facets() external view returns (tuple(address facetAddress, bytes4[] functionSelectors)[])',
       'function facetFunctionSelectors(address facet) external view returns (bytes4[])',
       'function facetAddresses() external view returns (address[])',
-      'function facetAddress(bytes4 selector) external view returns (address)'
+      'function facetAddress(bytes4 selector) external view returns (address)',
     ],
     cut: [
-      'function diamondCut(tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut, address _init, bytes _calldata) external'
+      'function diamondCut(tuple(address facetAddress, uint8 action, bytes4[] functionSelectors)[] _diamondCut, address _init, bytes _calldata) external',
     ],
     ownership: [
       'function owner() external view returns (address)',
-      'function transferOwnership(address newOwner) external'
+      'function transferOwnership(address newOwner) external',
     ],
-    erc165: [
-      'function supportsInterface(bytes4 interfaceId) external view returns (bool)'
-    ]
+    erc165: ['function supportsInterface(bytes4 interfaceId) external view returns (bool)'],
   };
 
   /**
@@ -127,50 +126,50 @@ export class DiamondStructureModule implements MonitoringModule {
         type: 'boolean',
         required: false,
         description: 'Whether DiamondLoupe facet is required',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'requireDiamondCut',
         type: 'boolean',
         required: false,
         description: 'Whether DiamondCut facet is required',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'requireOwnership',
         type: 'boolean',
         required: false,
         description: 'Whether ownership facet is required',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'allowZeroAddressFacets',
         type: 'boolean',
         required: false,
         description: 'Whether to allow facets with zero address',
-        defaultValue: false
+        defaultValue: false,
       },
       {
         key: 'minFacetCount',
         type: 'number',
         required: false,
         description: 'Minimum number of facets required',
-        defaultValue: 1
+        defaultValue: 1,
       },
       {
         key: 'maxFacetCount',
         type: 'number',
         required: false,
         description: 'Maximum number of facets allowed',
-        defaultValue: 50
+        defaultValue: 50,
       },
       {
         key: 'protocolVersionCheck',
         type: 'boolean',
         required: false,
         description: 'Whether to monitor protocol version',
-        defaultValue: true
-      }
+        defaultValue: true,
+      },
     ];
   }
 
@@ -182,7 +181,10 @@ export class DiamondStructureModule implements MonitoringModule {
     const warnings: string[] = [];
 
     // Validate config types
-    if (config.requireDiamondLoupe !== undefined && typeof config.requireDiamondLoupe !== 'boolean') {
+    if (
+      config.requireDiamondLoupe !== undefined &&
+      typeof config.requireDiamondLoupe !== 'boolean'
+    ) {
       errors.push('requireDiamondLoupe must be a boolean');
     }
 
@@ -194,30 +196,46 @@ export class DiamondStructureModule implements MonitoringModule {
       errors.push('requireOwnership must be a boolean');
     }
 
-    if (config.allowZeroAddressFacets !== undefined && typeof config.allowZeroAddressFacets !== 'boolean') {
+    if (
+      config.allowZeroAddressFacets !== undefined &&
+      typeof config.allowZeroAddressFacets !== 'boolean'
+    ) {
       errors.push('allowZeroAddressFacets must be a boolean');
     }
 
-    if (config.minFacetCount !== undefined && (typeof config.minFacetCount !== 'number' || config.minFacetCount < 0)) {
+    if (
+      config.minFacetCount !== undefined &&
+      (typeof config.minFacetCount !== 'number' || config.minFacetCount < 0)
+    ) {
       errors.push('minFacetCount must be a non-negative number');
     }
 
-    if (config.maxFacetCount !== undefined && (typeof config.maxFacetCount !== 'number' || config.maxFacetCount < 1)) {
+    if (
+      config.maxFacetCount !== undefined &&
+      (typeof config.maxFacetCount !== 'number' || config.maxFacetCount < 1)
+    ) {
       errors.push('maxFacetCount must be a positive number');
     }
 
-    if (config.minFacetCount !== undefined && config.maxFacetCount !== undefined && config.minFacetCount > config.maxFacetCount) {
+    if (
+      config.minFacetCount !== undefined &&
+      config.maxFacetCount !== undefined &&
+      config.minFacetCount > config.maxFacetCount
+    ) {
       errors.push('minFacetCount cannot be greater than maxFacetCount');
     }
 
-    if (config.protocolVersionCheck !== undefined && typeof config.protocolVersionCheck !== 'boolean') {
+    if (
+      config.protocolVersionCheck !== undefined &&
+      typeof config.protocolVersionCheck !== 'boolean'
+    ) {
       errors.push('protocolVersionCheck must be a boolean');
     }
 
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -290,33 +308,38 @@ export class DiamondStructureModule implements MonitoringModule {
       // Create detailed metadata
       const metadata = {
         analysis,
-        moduleConfig
+        moduleConfig,
       };
 
       return {
         status,
         issues,
         executionTime,
-        metadata
+        metadata,
       };
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      this.log(context, 'error', `❌ Diamond structure monitoring failed: ${(error as Error).message}`);
+      this.log(
+        context,
+        'error',
+        `❌ Diamond structure monitoring failed: ${(error as Error).message}`
+      );
 
-      issues.push(this.createIssue(
-        'monitoring-error',
-        'Diamond Structure Monitoring Failed',
-        `Diamond structure monitoring failed: ${(error as Error).message}`,
-        SeverityLevel.CRITICAL,
-        'system'
-      ));
+      issues.push(
+        this.createIssue(
+          'monitoring-error',
+          'Diamond Structure Monitoring Failed',
+          `Diamond structure monitoring failed: ${(error as Error).message}`,
+          SeverityLevel.CRITICAL,
+          'system'
+        )
+      );
 
       return {
         status: MonitoringStatus.FAIL,
         issues,
         executionTime,
-        metadata: { error: (error as Error).message }
+        metadata: { error: (error as Error).message },
       };
     }
   }
@@ -324,26 +347,36 @@ export class DiamondStructureModule implements MonitoringModule {
   /**
    * Analyze the diamond structure
    */
-  private async analyzeDiamondStructure(context: MonitoringContext): Promise<DiamondStructureAnalysis> {
+  private async analyzeDiamondStructure(
+    context: MonitoringContext
+  ): Promise<DiamondStructureAnalysis> {
     const { diamond, provider } = context;
-    
+
     // Query facets using DiamondLoupe
     let facets: FacetInfo[] = [];
     let diamondLoupePresent = false;
-    
+
     try {
-      const diamondContract = new ethers.Contract(diamond.address, this.diamondABIs.loupe, provider);
+      const diamondContract = new ethers.Contract(
+        diamond.address,
+        this.diamondABIs.loupe,
+        provider
+      );
       const facetData = await diamondContract.facets();
-      
+
       facets = facetData.map((f: any) => ({
         address: f.facetAddress.toLowerCase(),
         selectors: f.functionSelectors.map((s: string) => s.toLowerCase()),
-        name: this.identifyFacetName(f.facetAddress, f.functionSelectors)
+        name: this.identifyFacetName(f.facetAddress, f.functionSelectors),
       }));
-      
+
       diamondLoupePresent = true;
     } catch (error) {
-      this.log(context, 'warn', `Could not query facets via DiamondLoupe: ${(error as Error).message}`);
+      this.log(
+        context,
+        'warn',
+        `Could not query facets via DiamondLoupe: ${(error as Error).message}`
+      );
     }
 
     // Calculate totals and analyze structure
@@ -366,8 +399,14 @@ export class DiamondStructureModule implements MonitoringModule {
       .flatMap(f => f.selectors);
 
     // Check for standard facets
-    const diamondCutPresent = this.hasFunctionSelector(facets, this.standardSelectors.diamondCut.diamondCut);
-    const ownershipFacetPresent = this.hasFunctionSelector(facets, this.standardSelectors.ownership.owner);
+    const diamondCutPresent = this.hasFunctionSelector(
+      facets,
+      this.standardSelectors.diamondCut.diamondCut
+    );
+    const ownershipFacetPresent = this.hasFunctionSelector(
+      facets,
+      this.standardSelectors.ownership.owner
+    );
 
     // Try to get protocol version
     const protocolVersion = await this.getProtocolVersion(context);
@@ -381,7 +420,7 @@ export class DiamondStructureModule implements MonitoringModule {
       duplicateSelectors,
       orphanedSelectors: [], // Will be populated if needed
       zeroAddressFacets,
-      protocolVersion
+      protocolVersion,
     };
   }
 
@@ -396,38 +435,44 @@ export class DiamondStructureModule implements MonitoringModule {
 
     // Check minimum facet count
     if (config.minFacetCount && analysis.totalFacets < config.minFacetCount) {
-      issues.push(this.createIssue(
-        'min-facet-count',
-        'Insufficient Facet Count',
-        `Diamond has ${analysis.totalFacets} facets, but minimum required is ${config.minFacetCount}`,
-        SeverityLevel.ERROR,
-        'structure',
-        'Add more facets to meet minimum requirements'
-      ));
+      issues.push(
+        this.createIssue(
+          'min-facet-count',
+          'Insufficient Facet Count',
+          `Diamond has ${analysis.totalFacets} facets, but minimum required is ${config.minFacetCount}`,
+          SeverityLevel.ERROR,
+          'structure',
+          'Add more facets to meet minimum requirements'
+        )
+      );
     }
 
     // Check maximum facet count
     if (config.maxFacetCount && analysis.totalFacets > config.maxFacetCount) {
-      issues.push(this.createIssue(
-        'max-facet-count',
-        'Excessive Facet Count',
-        `Diamond has ${analysis.totalFacets} facets, but maximum allowed is ${config.maxFacetCount}`,
-        SeverityLevel.WARNING,
-        'structure',
-        'Consider reducing the number of facets for better gas efficiency'
-      ));
+      issues.push(
+        this.createIssue(
+          'max-facet-count',
+          'Excessive Facet Count',
+          `Diamond has ${analysis.totalFacets} facets, but maximum allowed is ${config.maxFacetCount}`,
+          SeverityLevel.WARNING,
+          'structure',
+          'Consider reducing the number of facets for better gas efficiency'
+        )
+      );
     }
 
     // Check for empty diamond
     if (analysis.totalFacets === 0) {
-      issues.push(this.createIssue(
-        'empty-diamond',
-        'Empty Diamond',
-        'Diamond has no facets - this indicates a serious deployment issue',
-        SeverityLevel.CRITICAL,
-        'structure',
-        'Monitor diamond deployment and ensure facets are properly added'
-      ));
+      issues.push(
+        this.createIssue(
+          'empty-diamond',
+          'Empty Diamond',
+          'Diamond has no facets - this indicates a serious deployment issue',
+          SeverityLevel.CRITICAL,
+          'structure',
+          'Monitor diamond deployment and ensure facets are properly added'
+        )
+      );
     }
 
     return issues;
@@ -444,38 +489,44 @@ export class DiamondStructureModule implements MonitoringModule {
 
     // Check DiamondLoupe requirement
     if (config.requireDiamondLoupe !== false && !analysis.diamondLoupePresent) {
-      issues.push(this.createIssue(
-        'missing-diamond-loupe',
-        'Missing DiamondLoupe Facet',
-        'DiamondLoupe facet is required for diamond introspection but not found',
-        SeverityLevel.ERROR,
-        'standard-facets',
-        'Add DiamondLoupe facet to enable diamond introspection capabilities'
-      ));
+      issues.push(
+        this.createIssue(
+          'missing-diamond-loupe',
+          'Missing DiamondLoupe Facet',
+          'DiamondLoupe facet is required for diamond introspection but not found',
+          SeverityLevel.ERROR,
+          'standard-facets',
+          'Add DiamondLoupe facet to enable diamond introspection capabilities'
+        )
+      );
     }
 
     // Check DiamondCut requirement
     if (config.requireDiamondCut !== false && !analysis.diamondCutPresent) {
-      issues.push(this.createIssue(
-        'missing-diamond-cut',
-        'Missing DiamondCut Facet',
-        'DiamondCut facet is required for diamond upgrades but not found',
-        SeverityLevel.ERROR,
-        'standard-facets',
-        'Add DiamondCut facet to enable diamond upgrade capabilities'
-      ));
+      issues.push(
+        this.createIssue(
+          'missing-diamond-cut',
+          'Missing DiamondCut Facet',
+          'DiamondCut facet is required for diamond upgrades but not found',
+          SeverityLevel.ERROR,
+          'standard-facets',
+          'Add DiamondCut facet to enable diamond upgrade capabilities'
+        )
+      );
     }
 
     // Check Ownership requirement
     if (config.requireOwnership !== false && !analysis.ownershipFacetPresent) {
-      issues.push(this.createIssue(
-        'missing-ownership',
-        'Missing Ownership Facet',
-        'Ownership facet is required for access control but not found',
-        SeverityLevel.WARNING,
-        'standard-facets',
-        'Add ownership facet to enable proper access control'
-      ));
+      issues.push(
+        this.createIssue(
+          'missing-ownership',
+          'Missing Ownership Facet',
+          'Ownership facet is required for access control but not found',
+          SeverityLevel.WARNING,
+          'standard-facets',
+          'Add ownership facet to enable proper access control'
+        )
+      );
     }
 
     return issues;
@@ -492,27 +543,31 @@ export class DiamondStructureModule implements MonitoringModule {
 
     // Check for duplicate selectors
     if (analysis.duplicateSelectors.length > 0) {
-      issues.push(this.createIssue(
-        'duplicate-selectors',
-        'Duplicate Function Selectors',
-        `Found ${analysis.duplicateSelectors.length} duplicate selectors: ${analysis.duplicateSelectors.join(', ')}`,
-        SeverityLevel.CRITICAL,
-        'integrity',
-        'This indicates a critical diamond implementation error - remove duplicate selectors immediately'
-      ));
+      issues.push(
+        this.createIssue(
+          'duplicate-selectors',
+          'Duplicate Function Selectors',
+          `Found ${analysis.duplicateSelectors.length} duplicate selectors: ${analysis.duplicateSelectors.join(', ')}`,
+          SeverityLevel.CRITICAL,
+          'integrity',
+          'This indicates a critical diamond implementation error - remove duplicate selectors immediately'
+        )
+      );
     }
 
     // Check for zero address facets
     if (analysis.zeroAddressFacets.length > 0 && !config.allowZeroAddressFacets) {
-      issues.push(this.createIssue(
-        'zero-address-facets',
-        'Zero Address Facets Detected',
-        `Found ${analysis.zeroAddressFacets.length} selectors pointing to zero address`,
-        SeverityLevel.ERROR,
-        'integrity',
-        'Remove or replace selectors pointing to zero address',
-        { selectors: analysis.zeroAddressFacets }
-      ));
+      issues.push(
+        this.createIssue(
+          'zero-address-facets',
+          'Zero Address Facets Detected',
+          `Found ${analysis.zeroAddressFacets.length} selectors pointing to zero address`,
+          SeverityLevel.ERROR,
+          'integrity',
+          'Remove or replace selectors pointing to zero address',
+          { selectors: analysis.zeroAddressFacets }
+        )
+      );
     }
 
     return issues;
@@ -521,20 +576,25 @@ export class DiamondStructureModule implements MonitoringModule {
   /**
    * Monitor protocol version
    */
-  private async monitorProtocolVersion(context: MonitoringContext, version: string): Promise<MonitoringIssue[]> {
+  private async monitorProtocolVersion(
+    context: MonitoringContext,
+    version: string
+  ): Promise<MonitoringIssue[]> {
     const issues: MonitoringIssue[] = [];
 
     // Basic version format check
     const versionPattern = /^\d+\.\d+\.\d+/;
     if (!versionPattern.test(version)) {
-      issues.push(this.createIssue(
-        'invalid-version-format',
-        'Invalid Protocol Version Format',
-        `Protocol version '${version}' does not follow semantic versioning`,
-        SeverityLevel.WARNING,
-        'version',
-        'Use semantic versioning format (e.g., 1.0.0)'
-      ));
+      issues.push(
+        this.createIssue(
+          'invalid-version-format',
+          'Invalid Protocol Version Format',
+          `Protocol version '${version}' does not follow semantic versioning`,
+          SeverityLevel.WARNING,
+          'version',
+          'Use semantic versioning format (e.g., 1.0.0)'
+        )
+      );
     }
 
     return issues;
@@ -543,58 +603,78 @@ export class DiamondStructureModule implements MonitoringModule {
   /**
    * Test core functionality
    */
-  private async testCoreFunctionality(context: MonitoringContext, analysis: DiamondStructureAnalysis): Promise<MonitoringIssue[]> {
+  private async testCoreFunctionality(
+    context: MonitoringContext,
+    analysis: DiamondStructureAnalysis
+  ): Promise<MonitoringIssue[]> {
     const issues: MonitoringIssue[] = [];
     const { diamond, provider } = context;
 
     // Test DiamondLoupe functions if present
     if (analysis.diamondLoupePresent) {
       try {
-        const diamondContract = new ethers.Contract(diamond.address, this.diamondABIs.loupe, provider);
-        
+        const diamondContract = new ethers.Contract(
+          diamond.address,
+          this.diamondABIs.loupe,
+          provider
+        );
+
         // Test facets() function
         await diamondContract.facets();
-        
+
         // Test facetAddresses() function
         await diamondContract.facetAddresses();
-        
+
         this.log(context, 'info', '✅ DiamondLoupe functionality verified');
       } catch (error) {
-        issues.push(this.createIssue(
-          'loupe-functionality-error',
-          'DiamondLoupe Functionality Error',
-          `DiamondLoupe functions are not working properly: ${(error as Error).message}`,
-          SeverityLevel.ERROR,
-          'functionality'
-        ));
+        issues.push(
+          this.createIssue(
+            'loupe-functionality-error',
+            'DiamondLoupe Functionality Error',
+            `DiamondLoupe functions are not working properly: ${(error as Error).message}`,
+            SeverityLevel.ERROR,
+            'functionality'
+          )
+        );
       }
     }
 
     // Test ERC165 if present
-    const erc165Present = this.hasFunctionSelector([...analysis.duplicateSelectors], this.standardSelectors.erc165.supportsInterface);
+    const erc165Present = this.hasFunctionSelector(
+      [...analysis.duplicateSelectors],
+      this.standardSelectors.erc165.supportsInterface
+    );
     if (erc165Present) {
       try {
-        const diamondContract = new ethers.Contract(diamond.address, this.diamondABIs.erc165, provider);
-        
+        const diamondContract = new ethers.Contract(
+          diamond.address,
+          this.diamondABIs.erc165,
+          provider
+        );
+
         // Test supportsInterface for ERC165 itself
         const supportsERC165 = await diamondContract.supportsInterface('0x01ffc9a7');
         if (!supportsERC165) {
-          issues.push(this.createIssue(
-            'erc165-self-check-fail',
-            'ERC165 Self-Check Failed',
-            'Diamond does not report supporting ERC165 interface',
-            SeverityLevel.WARNING,
-            'functionality'
-          ));
+          issues.push(
+            this.createIssue(
+              'erc165-self-check-fail',
+              'ERC165 Self-Check Failed',
+              'Diamond does not report supporting ERC165 interface',
+              SeverityLevel.WARNING,
+              'functionality'
+            )
+          );
         }
       } catch (error) {
-        issues.push(this.createIssue(
-          'erc165-functionality-error',
-          'ERC165 Functionality Error',
-          `ERC165 interface is not working properly: ${(error as Error).message}`,
-          SeverityLevel.WARNING,
-          'functionality'
-        ));
+        issues.push(
+          this.createIssue(
+            'erc165-functionality-error',
+            'ERC165 Functionality Error',
+            `ERC165 interface is not working properly: ${(error as Error).message}`,
+            SeverityLevel.WARNING,
+            'functionality'
+          )
+        );
       }
     }
 
@@ -629,7 +709,7 @@ export class DiamondStructureModule implements MonitoringModule {
       severity,
       category,
       recommendation,
-      metadata
+      metadata,
     };
   }
 
@@ -639,28 +719,26 @@ export class DiamondStructureModule implements MonitoringModule {
       return (facets as string[]).includes(selector.toLowerCase());
     } else {
       // Array of FacetInfo
-      return (facets as FacetInfo[]).some(f => 
-        f.selectors.includes(selector.toLowerCase())
-      );
+      return (facets as FacetInfo[]).some(f => f.selectors.includes(selector.toLowerCase()));
     }
   }
 
   private identifyFacetName(address: string, selectors: string[]): string | undefined {
     // Simple heuristic to identify common facets by their selectors
     const selectorSet = new Set(selectors.map(s => s.toLowerCase()));
-    
+
     if (selectorSet.has(this.standardSelectors.diamondLoupe.facets)) {
       return 'DiamondLoupeFacet';
     }
-    
+
     if (selectorSet.has(this.standardSelectors.diamondCut.diamondCut)) {
       return 'DiamondCutFacet';
     }
-    
+
     if (selectorSet.has(this.standardSelectors.ownership.owner)) {
       return 'OwnershipFacet';
     }
-    
+
     return undefined;
   }
 

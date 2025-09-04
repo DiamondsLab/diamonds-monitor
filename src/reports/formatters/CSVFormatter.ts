@@ -1,6 +1,6 @@
 /**
  * CSV Report Formatter
- * 
+ *
  * Generates CSV reports suitable for data analysis, spreadsheet import,
  * and statistical processing with flattened data structure.
  */
@@ -46,7 +46,7 @@ export class CSVFormatter implements ReportFormatter {
     return {
       isValid: true,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -57,7 +57,7 @@ export class CSVFormatter implements ReportFormatter {
    */
   private generateDetailedCSV(report: MonitoringReport, options?: ReportOptions): string {
     const rows: string[][] = [];
-    
+
     // Headers
     const headers = [
       'Report_Timestamp',
@@ -85,7 +85,7 @@ export class CSVFormatter implements ReportFormatter {
       'Issue_Severity',
       'Issue_Category',
       'Issue_Recommendation',
-      'Issue_Metadata'
+      'Issue_Metadata',
     ];
 
     if (options?.includeMetadata) {
@@ -115,7 +115,7 @@ export class CSVFormatter implements ReportFormatter {
         moduleResult.startTime.toISOString(),
         moduleResult.endTime.toISOString(),
         moduleResult.duration.toString(),
-        moduleResult.result.issues.length.toString()
+        moduleResult.result.issues.length.toString(),
       ];
 
       if (moduleResult.result.issues.length === 0) {
@@ -136,7 +136,7 @@ export class CSVFormatter implements ReportFormatter {
             issue.severity,
             issue.category,
             this.escapeCsvField(issue.recommendation || ''),
-            this.stringifyMetadata(issue.metadata)
+            this.stringifyMetadata(issue.metadata),
           ];
 
           if (options?.includeMetadata) {
@@ -166,7 +166,7 @@ export class CSVFormatter implements ReportFormatter {
     sections.push(this.generateModulePerformanceCSV(report));
 
     // Issues section
-    const allIssues = report.modules.flatMap(m => 
+    const allIssues = report.modules.flatMap(m =>
       m.result.issues.map(issue => ({ ...issue, module: m.moduleName }))
     );
 
@@ -202,7 +202,7 @@ export class CSVFormatter implements ReportFormatter {
       ['Warnings', report.summary.warnings.toString()],
       ['Skipped', report.summary.skipped.toString()],
       ['Duration_Seconds', (report.duration / 1000).toFixed(2)],
-      ['Timestamp', report.timestamp.toISOString()]
+      ['Timestamp', report.timestamp.toISOString()],
     ];
 
     return this.formatCSVRows(rows);
@@ -212,7 +212,16 @@ export class CSVFormatter implements ReportFormatter {
    * Generate module performance CSV section
    */
   private generateModulePerformanceCSV(report: MonitoringReport): string {
-    const headers = ['Module_Name', 'Module_ID', 'Status', 'Duration_Ms', 'Duration_Seconds', 'Issue_Count', 'Start_Time', 'End_Time'];
+    const headers = [
+      'Module_Name',
+      'Module_ID',
+      'Status',
+      'Duration_Ms',
+      'Duration_Seconds',
+      'Issue_Count',
+      'Start_Time',
+      'End_Time',
+    ];
     const rows = [headers];
 
     for (const moduleResult of report.modules) {
@@ -224,7 +233,7 @@ export class CSVFormatter implements ReportFormatter {
         (moduleResult.duration / 1000).toFixed(2),
         moduleResult.result.issues.length.toString(),
         moduleResult.startTime.toISOString(),
-        moduleResult.endTime.toISOString()
+        moduleResult.endTime.toISOString(),
       ]);
     }
 
@@ -243,7 +252,7 @@ export class CSVFormatter implements ReportFormatter {
       'Category',
       'Description',
       'Recommendation',
-      'Has_Metadata'
+      'Has_Metadata',
     ];
 
     if (options?.includeMetadata) {
@@ -258,7 +267,7 @@ export class CSVFormatter implements ReportFormatter {
     // Apply filters
     let filteredIssues = sortedIssues;
     if (options?.severityFilter?.length) {
-      filteredIssues = filteredIssues.filter(issue => 
+      filteredIssues = filteredIssues.filter(issue =>
         options.severityFilter!.includes(issue.severity)
       );
     }
@@ -272,7 +281,7 @@ export class CSVFormatter implements ReportFormatter {
         issue.category,
         this.escapeCsvField(issue.description),
         this.escapeCsvField(issue.recommendation || ''),
-        issue.metadata ? 'true' : 'false'
+        issue.metadata ? 'true' : 'false',
       ];
 
       if (options?.includeMetadata) {
@@ -290,14 +299,20 @@ export class CSVFormatter implements ReportFormatter {
    */
   private generateStatisticsCSV(report: MonitoringReport): string {
     const allIssues = report.modules.flatMap(m => m.result.issues);
-    
+
     // Severity distribution
     const severityStats = [
       ['Statistic', 'Value'],
       ['Total_Issues', allIssues.length.toString()],
-      ['Critical_Issues', allIssues.filter(i => i.severity === SeverityLevel.CRITICAL).length.toString()],
+      [
+        'Critical_Issues',
+        allIssues.filter(i => i.severity === SeverityLevel.CRITICAL).length.toString(),
+      ],
       ['Error_Issues', allIssues.filter(i => i.severity === SeverityLevel.ERROR).length.toString()],
-      ['Warning_Issues', allIssues.filter(i => i.severity === SeverityLevel.WARNING).length.toString()],
+      [
+        'Warning_Issues',
+        allIssues.filter(i => i.severity === SeverityLevel.WARNING).length.toString(),
+      ],
       ['Info_Issues', allIssues.filter(i => i.severity === SeverityLevel.INFO).length.toString()],
     ];
 
@@ -310,7 +325,7 @@ export class CSVFormatter implements ReportFormatter {
     const categoryStats: string[][] = [
       ['', ''],
       ['# CATEGORY_DISTRIBUTION', ''],
-      ['Category', 'Count']
+      ['Category', 'Count'],
     ];
 
     for (const category of Array.from(categoryMap.keys())) {
@@ -322,19 +337,20 @@ export class CSVFormatter implements ReportFormatter {
     const moduleStats: string[][] = [
       ['', ''],
       ['# MODULE_STATISTICS', ''],
-      ['Module', 'Duration_Ms', 'Issue_Count', 'Issues_Per_Second']
+      ['Module', 'Duration_Ms', 'Issue_Count', 'Issues_Per_Second'],
     ];
 
     for (const moduleResult of report.modules) {
-      const issuesPerSecond = moduleResult.duration > 0 
-        ? (moduleResult.result.issues.length / (moduleResult.duration / 1000)).toFixed(3)
-        : '0';
-        
+      const issuesPerSecond =
+        moduleResult.duration > 0
+          ? (moduleResult.result.issues.length / (moduleResult.duration / 1000)).toFixed(3)
+          : '0';
+
       moduleStats.push([
         moduleResult.moduleName,
         moduleResult.duration.toString(),
         moduleResult.result.issues.length.toString(),
-        issuesPerSecond
+        issuesPerSecond,
       ]);
     }
 
@@ -346,16 +362,18 @@ export class CSVFormatter implements ReportFormatter {
    */
   private sortIssues(issues: any[], sortBy?: string): any[] {
     const sorted = [...issues];
-    
+
     switch (sortBy) {
       case 'severity':
-        const severityOrder: Record<string, number> = { 
-          [SeverityLevel.CRITICAL]: 0, 
-          [SeverityLevel.ERROR]: 1, 
-          [SeverityLevel.WARNING]: 2, 
-          [SeverityLevel.INFO]: 3 
+        const severityOrder: Record<string, number> = {
+          [SeverityLevel.CRITICAL]: 0,
+          [SeverityLevel.ERROR]: 1,
+          [SeverityLevel.WARNING]: 2,
+          [SeverityLevel.INFO]: 3,
         };
-        sorted.sort((a, b) => (severityOrder[a.severity] || 999) - (severityOrder[b.severity] || 999));
+        sorted.sort(
+          (a, b) => (severityOrder[a.severity] || 999) - (severityOrder[b.severity] || 999)
+        );
         break;
       case 'category':
         sorted.sort((a, b) => a.category.localeCompare(b.category));
@@ -368,7 +386,7 @@ export class CSVFormatter implements ReportFormatter {
         sorted.sort((a, b) => a.id.localeCompare(b.id));
         break;
     }
-    
+
     return sorted;
   }
 
@@ -376,9 +394,7 @@ export class CSVFormatter implements ReportFormatter {
    * Format rows as CSV
    */
   private formatCSVRows(rows: string[][]): string {
-    return rows.map(row => 
-      row.map(cell => this.escapeCSVCell(cell)).join(',')
-    ).join('\n');
+    return rows.map(row => row.map(cell => this.escapeCSVCell(cell)).join(',')).join('\n');
   }
 
   /**
@@ -387,14 +403,14 @@ export class CSVFormatter implements ReportFormatter {
   private escapeCSVCell(cell: string): string {
     // Handle null/undefined
     if (cell == null) return '';
-    
+
     const str = String(cell);
-    
+
     // If cell contains comma, newline, or double quote, wrap in quotes and escape quotes
     if (str.includes(',') || str.includes('\n') || str.includes('\r') || str.includes('"')) {
       return `"${str.replace(/"/g, '""')}"`;
     }
-    
+
     return str;
   }
 
@@ -403,13 +419,9 @@ export class CSVFormatter implements ReportFormatter {
    */
   private escapeCsvField(text: string): string {
     if (!text) return '';
-    
+
     // Replace newlines with spaces and limit length
-    return text
-      .replace(/\r?\n/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .substring(0, 500); // Limit field length for CSV compatibility
+    return text.replace(/\r?\n/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 500); // Limit field length for CSV compatibility
   }
 
   /**
@@ -417,7 +429,7 @@ export class CSVFormatter implements ReportFormatter {
    */
   private stringifyMetadata(metadata: any): string {
     if (!metadata) return '';
-    
+
     try {
       return JSON.stringify(metadata).replace(/"/g, '""');
     } catch {

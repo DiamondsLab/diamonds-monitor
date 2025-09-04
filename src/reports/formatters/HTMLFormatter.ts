@@ -1,12 +1,18 @@
 /**
  * HTML Report Formatter
- * 
+ *
  * Generates interactive HTML reports with professional styling,
  * charts, filtering capabilities, and responsive design.
  */
 
 import { MonitoringReport, MonitoringStatus, SeverityLevel } from '../../core/types';
-import { ReportFormatter, ReportOptions, ReportValidationResult, THEMES, ChartData } from '../types';
+import {
+  ReportFormatter,
+  ReportOptions,
+  ReportValidationResult,
+  THEMES,
+  ChartData,
+} from '../types';
 
 /**
  * HTML formatter with interactive features
@@ -23,7 +29,7 @@ export class HTMLFormatter implements ReportFormatter {
   public async format(report: MonitoringReport, options?: ReportOptions): Promise<string> {
     const theme = THEMES[options?.theme || 'light'];
     const chartData = options?.includeCharts ? this.generateChartData(report) : undefined;
-    
+
     return this.generateHTMLDocument(report, options, theme, chartData);
   }
 
@@ -35,7 +41,9 @@ export class HTMLFormatter implements ReportFormatter {
     const warnings: string[] = [];
 
     if (options?.theme && !THEMES[options.theme] && options.theme !== 'auto') {
-      errors.push(`Invalid theme: ${options.theme}. Available themes: ${Object.keys(THEMES).join(', ')}, auto`);
+      errors.push(
+        `Invalid theme: ${options.theme}. Available themes: ${Object.keys(THEMES).join(', ')}, auto`
+      );
     }
 
     if (options?.colorOutput === false) {
@@ -45,7 +53,7 @@ export class HTMLFormatter implements ReportFormatter {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -55,13 +63,14 @@ export class HTMLFormatter implements ReportFormatter {
    * Generate the complete HTML document
    */
   private generateHTMLDocument(
-    report: MonitoringReport, 
-    options?: ReportOptions, 
-    theme?: any, 
+    report: MonitoringReport,
+    options?: ReportOptions,
+    theme?: any,
     chartData?: ChartData[]
   ): string {
     const title = options?.title || `Diamond Monitoring Report - ${report.diamond.name}`;
-    const description = options?.description || 
+    const description =
+      options?.description ||
       `Monitoring report for ${report.diamond.name} on ${report.network.name}`;
 
     return `<!DOCTYPE html>
@@ -95,7 +104,7 @@ export class HTMLFormatter implements ReportFormatter {
    */
   private generateCSS(theme?: any, options?: ReportOptions): string {
     const customCSS = options?.customCss || '';
-    
+
     return `<style>
       /* Reset and base styles */
       * {
@@ -434,7 +443,7 @@ export class HTMLFormatter implements ReportFormatter {
     const title = options?.title || `Diamond Monitoring Report`;
     const statusClass = report.summary.status;
     const statusIcon = this.getStatusIcon(report.summary.status);
-    
+
     return `
     <div class="header">
       <h1 class="title">${title}</h1>
@@ -476,14 +485,20 @@ export class HTMLFormatter implements ReportFormatter {
           <div class="stat-value" style="color: #f57c00;">${report.summary.warnings}</div>
           <div class="stat-label">Warnings</div>
         </div>
-        ${report.summary.skipped > 0 ? `
+        ${
+          report.summary.skipped > 0
+            ? `
         <div class="stat-card">
           <div class="stat-value" style="color: #666;">${report.summary.skipped}</div>
           <div class="stat-label">Skipped</div>
-        </div>` : ''}
+        </div>`
+            : ''
+        }
       </div>
 
-      ${options?.includeMetadata ? `
+      ${
+        options?.includeMetadata
+          ? `
       <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
         <h3 style="margin-bottom: 15px; color: #1565c0;">Execution Details</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
@@ -492,7 +507,9 @@ export class HTMLFormatter implements ReportFormatter {
           <div><strong>Duration:</strong><br>${(report.duration / 1000).toFixed(2)} seconds</div>
           <div><strong>Modules:</strong><br>${report.modules.length} executed</div>
         </div>
-      </div>` : ''}
+      </div>`
+          : ''
+      }
     </div>`;
   }
 
@@ -508,12 +525,16 @@ export class HTMLFormatter implements ReportFormatter {
       </h2>
       
       <div class="charts-grid">
-        ${chartData.map((chart, index) => `
+        ${chartData
+          .map(
+            (chart, index) => `
           <div class="chart-container">
             <div class="chart-title">${chart.title}</div>
             <canvas id="chart-${index}" width="400" height="300"></canvas>
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     </div>`;
   }
@@ -523,7 +544,7 @@ export class HTMLFormatter implements ReportFormatter {
    */
   private generateModuleResults(report: MonitoringReport, options?: ReportOptions): string {
     const maxIssues = options?.maxIssuesPerModule || 10;
-    
+
     return `
     <div class="section">
       <h2 class="section-title">
@@ -534,12 +555,13 @@ export class HTMLFormatter implements ReportFormatter {
       ${options?.interactive ? this.generateFilters() : ''}
       
       <div class="modules-grid">
-        ${report.modules.map(moduleResult => {
-          const statusIcon = this.getStatusIcon(moduleResult.status);
-          const issues = moduleResult.result.issues.slice(0, maxIssues);
-          const remainingCount = moduleResult.result.issues.length - maxIssues;
-          
-          return `
+        ${report.modules
+          .map(moduleResult => {
+            const statusIcon = this.getStatusIcon(moduleResult.status);
+            const issues = moduleResult.result.issues.slice(0, maxIssues);
+            const remainingCount = moduleResult.result.issues.length - maxIssues;
+
+            return `
           <div class="module-card" data-module="${moduleResult.moduleId}" data-status="${moduleResult.status}">
             <div class="module-header">
               <div>
@@ -551,40 +573,61 @@ export class HTMLFormatter implements ReportFormatter {
               </div>
             </div>
             
-            ${issues.length > 0 ? `
+            ${
+              issues.length > 0
+                ? `
             <div class="issues-container">
-              ${issues.map(issue => `
+              ${issues
+                .map(
+                  issue => `
                 <div class="issue ${issue.severity}" data-severity="${issue.severity}" data-category="${issue.category}">
                   <div class="issue-title">
                     ${this.getSeverityIcon(issue.severity)} ${issue.title}
                   </div>
                   <div class="issue-description">${issue.description}</div>
-                  ${issue.recommendation ? `
+                  ${
+                    issue.recommendation
+                      ? `
                     <div class="issue-recommendation">
                       💡 ${issue.recommendation}
                     </div>
-                  ` : ''}
-                  ${options?.includeMetadata && issue.metadata ? `
+                  `
+                      : ''
+                  }
+                  ${
+                    options?.includeMetadata && issue.metadata
+                      ? `
                     <div class="issue-metadata">
                       <strong>Metadata:</strong> ${JSON.stringify(issue.metadata, null, 2)}
                     </div>
-                  ` : ''}
+                  `
+                      : ''
+                  }
                 </div>
-              `).join('')}
+              `
+                )
+                .join('')}
               
-              ${remainingCount > 0 ? `
+              ${
+                remainingCount > 0
+                  ? `
                 <div style="text-align: center; margin-top: 15px; color: #666;">
                   ... and ${remainingCount} more issue${remainingCount === 1 ? '' : 's'}
                 </div>
-              ` : ''}
-            </div>` : `
+              `
+                  : ''
+              }
+            </div>`
+                : `
             <div class="issues-container">
               <div style="text-align: center; color: #2e7d32; padding: 20px;">
                 ✅ No issues found
               </div>
-            </div>`}
+            </div>`
+            }
           </div>`;
-        }).join('')}
+          })
+          .join('')}
       </div>
     </div>`;
   }
@@ -630,18 +673,18 @@ export class HTMLFormatter implements ReportFormatter {
    * Generate detailed issues section
    */
   private generateDetailedIssues(report: MonitoringReport, options?: ReportOptions): string {
-    const allIssues = report.modules.flatMap(m => 
+    const allIssues = report.modules.flatMap(m =>
       m.result.issues.map(issue => ({ ...issue, module: m.moduleName }))
     );
     const criticalIssues = allIssues.filter(i => i.severity === SeverityLevel.CRITICAL);
     const errorIssues = allIssues.filter(i => i.severity === SeverityLevel.ERROR);
-    
+
     if (criticalIssues.length === 0 && errorIssues.length === 0) {
       return '';
     }
 
     const highPriorityIssues = [...criticalIssues, ...errorIssues];
-    
+
     return `
     <div class="section">
       <h2 class="section-title">
@@ -650,7 +693,9 @@ export class HTMLFormatter implements ReportFormatter {
       </h2>
       
       <div style="margin-top: 20px;">
-        ${highPriorityIssues.map((issue, index) => `
+        ${highPriorityIssues
+          .map(
+            (issue, index) => `
           <div class="issue ${issue.severity}" style="margin-bottom: 20px;">
             <div class="issue-title">
               ${index + 1}. ${this.getSeverityIcon(issue.severity)} ${issue.title}
@@ -659,13 +704,19 @@ export class HTMLFormatter implements ReportFormatter {
               <strong>Module:</strong> ${issue.module} • <strong>Category:</strong> ${issue.category}
             </div>
             <div class="issue-description">${issue.description}</div>
-            ${issue.recommendation ? `
+            ${
+              issue.recommendation
+                ? `
               <div class="issue-recommendation">
                 💡 <strong>Recommendation:</strong> ${issue.recommendation}
               </div>
-            ` : ''}
+            `
+                : ''
+            }
           </div>
-        `).join('')}
+        `
+          )
+          .join('')}
       </div>
     </div>`;
   }
@@ -699,13 +750,17 @@ export class HTMLFormatter implements ReportFormatter {
     <div style="margin-top: 50px; padding-top: 30px; border-top: 2px solid #e0e0e0; text-align: center; color: #666;">
       <p>Generated by Diamond Monitoring System v1.0.0</p>
       <p>Report generated at ${new Date().toLocaleString()}</p>
-      ${options?.includeMetadata ? `
+      ${
+        options?.includeMetadata
+          ? `
         <p style="margin-top: 10px; font-size: 0.9em;">
           Execution time: ${(report.duration / 1000).toFixed(2)}s • 
           Modules: ${report.modules.length} • 
           Total issues: ${report.modules.reduce((sum, m) => sum + m.result.issues.length, 0)}
         </p>
-      ` : ''}
+      `
+          : ''
+      }
     </div>`;
   }
 
@@ -833,15 +888,20 @@ export class HTMLFormatter implements ReportFormatter {
       critical: allIssues.filter(i => i.severity === 'critical').length,
       error: allIssues.filter(i => i.severity === 'error').length,
       warning: allIssues.filter(i => i.severity === 'warning').length,
-      info: allIssues.filter(i => i.severity === 'info').length
+      info: allIssues.filter(i => i.severity === 'info').length,
     };
 
     charts.push({
       type: 'doughnut',
       title: 'Issues by Severity',
       labels: ['Critical', 'Error', 'Warning', 'Info'],
-      data: [severityCounts.critical, severityCounts.error, severityCounts.warning, severityCounts.info],
-      backgroundColor: ['#d32f2f', '#f57c00', '#fbc02d', '#1976d2']
+      data: [
+        severityCounts.critical,
+        severityCounts.error,
+        severityCounts.warning,
+        severityCounts.info,
+      ],
+      backgroundColor: ['#d32f2f', '#f57c00', '#fbc02d', '#1976d2'],
     });
 
     // Module performance chart
@@ -850,7 +910,7 @@ export class HTMLFormatter implements ReportFormatter {
       title: 'Module Execution Time',
       labels: report.modules.map(m => m.moduleName.replace(/([A-Z])/g, ' $1').trim()),
       data: report.modules.map(m => m.duration),
-      backgroundColor: ['#42a5f5']
+      backgroundColor: ['#42a5f5'],
     });
 
     return charts;
@@ -860,21 +920,31 @@ export class HTMLFormatter implements ReportFormatter {
 
   private getStatusIcon(status: MonitoringStatus): string {
     switch (status) {
-      case MonitoringStatus.PASS: return '✅';
-      case MonitoringStatus.WARNING: return '⚠️';
-      case MonitoringStatus.FAIL: return '❌';
-      case MonitoringStatus.SKIPPED: return '⏭️';
-      default: return 'ℹ️';
+      case MonitoringStatus.PASS:
+        return '✅';
+      case MonitoringStatus.WARNING:
+        return '⚠️';
+      case MonitoringStatus.FAIL:
+        return '❌';
+      case MonitoringStatus.SKIPPED:
+        return '⏭️';
+      default:
+        return 'ℹ️';
     }
   }
 
   private getSeverityIcon(severity: SeverityLevel): string {
     switch (severity) {
-      case SeverityLevel.CRITICAL: return '🚨';
-      case SeverityLevel.ERROR: return '❌';
-      case SeverityLevel.WARNING: return '⚠️';
-      case SeverityLevel.INFO: return 'ℹ️';
-      default: return '•';
+      case SeverityLevel.CRITICAL:
+        return '🚨';
+      case SeverityLevel.ERROR:
+        return '❌';
+      case SeverityLevel.WARNING:
+        return '⚠️';
+      case SeverityLevel.INFO:
+        return 'ℹ️';
+      default:
+        return '•';
     }
   }
 }

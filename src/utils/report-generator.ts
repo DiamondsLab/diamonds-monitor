@@ -1,6 +1,6 @@
 /**
  * Report Generation Utilities for Diamond Monitoring
- * 
+ *
  * Handles the generation of monitoring reports in various formats
  * (console, JSON, HTML, etc.)
  */
@@ -8,12 +8,7 @@
 import * as fs from 'fs/promises';
 import chalk from 'chalk';
 
-import {
-  MonitoringReport,
-  MonitoringStatus,
-  SeverityLevel,
-  MonitoringIssue
-} from '../core/types';
+import { MonitoringReport, MonitoringStatus, SeverityLevel, MonitoringIssue } from '../core/types';
 
 /**
  * Report output options
@@ -102,14 +97,15 @@ export async function generateConsoleReport(
     for (const moduleResult of report.modules) {
       const moduleStatusColor = getStatusColor(moduleResult.status, c);
       const moduleIcon = getStatusIcon(moduleResult.status);
-      
+
       console.log(`\n${moduleStatusColor(`${moduleIcon} ${moduleResult.moduleName}`)}`);
       console.log(`   Duration: ${(moduleResult.duration / 1000).toFixed(2)}s`);
       console.log(`   Issues: ${moduleResult.result.issues.length}`);
 
       if (moduleResult.result.issues.length > 0) {
         const sortedIssues = sortIssues(moduleResult.result.issues, options.sortBy);
-        for (const issue of sortedIssues.slice(0, 5)) { // Show first 5 issues
+        for (const issue of sortedIssues.slice(0, 5)) {
+          // Show first 5 issues
           const issueColor = getSeverityColor(issue.severity, c);
           const issueIcon = getSeverityIcon(issue.severity);
           console.log(`     ${issueColor(`${issueIcon} ${issue.title}`)}`);
@@ -117,9 +113,11 @@ export async function generateConsoleReport(
             console.log(`       ${c.gray(issue.description)}`);
           }
         }
-        
+
         if (moduleResult.result.issues.length > 5) {
-          console.log(`     ${c.gray(`... and ${moduleResult.result.issues.length - 5} more issues`)}`);
+          console.log(
+            `     ${c.gray(`... and ${moduleResult.result.issues.length - 5} more issues`)}`
+          );
         }
       }
     }
@@ -130,15 +128,15 @@ export async function generateConsoleReport(
     const allIssues = report.modules.flatMap(m => m.result.issues);
     const criticalIssues = allIssues.filter(i => i.severity === SeverityLevel.CRITICAL);
     const errorIssues = allIssues.filter(i => i.severity === SeverityLevel.ERROR);
-    
+
     if (criticalIssues.length > 0 || errorIssues.length > 0) {
       console.log('\n' + c.red('🚨 CRITICAL & ERROR ISSUES'));
       console.log(c.red('─'.repeat(40)));
-      
+
       [...criticalIssues, ...errorIssues].forEach((issue, index) => {
         const issueColor = getSeverityColor(issue.severity, c);
         const issueIcon = getSeverityIcon(issue.severity);
-        
+
         console.log(`\n${index + 1}. ${issueColor(`${issueIcon} ${issue.title}`)}`);
         console.log(`   Category: ${issue.category}`);
         console.log(`   Description: ${issue.description}`);
@@ -171,7 +169,7 @@ export async function generateJsonReport(
   const reportData = {
     ...report,
     generatedAt: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
   };
 
   const jsonOutput = JSON.stringify(reportData, null, 2);
@@ -223,7 +221,7 @@ export async function generateCsvReport(
  */
 function generateHtmlContent(report: MonitoringReport): string {
   const allIssues = report.modules.flatMap(m => m.result.issues);
-  
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -293,21 +291,29 @@ function generateHtmlContent(report: MonitoringReport): string {
 
     <div class="section">
       <h2 class="section-title">Module Results</h2>
-      ${report.modules.map(module => `
+      ${report.modules
+        .map(
+          module => `
         <div class="module">
           <div class="module-header">
             <span class="status ${module.status}">${module.status}</span>
             ${module.moduleName} (${(module.duration / 1000).toFixed(2)}s)
           </div>
-          ${module.result.issues.map(issue => `
+          ${module.result.issues
+            .map(
+              issue => `
             <div class="issue ${issue.severity}">
               <div class="issue-title">${issue.title}</div>
               <div class="issue-description">${issue.description}</div>
               ${issue.recommendation ? `<div class="issue-recommendation">💡 ${issue.recommendation}</div>` : ''}
             </div>
-          `).join('')}
+          `
+            )
+            .join('')}
         </div>
-      `).join('')}
+      `
+        )
+        .join('')}
     </div>
 
     <div class="section">
@@ -329,7 +335,17 @@ function generateHtmlContent(report: MonitoringReport): string {
  */
 function generateCsvContent(report: MonitoringReport): string {
   const rows = [
-    ['Module', 'Status', 'Duration (ms)', 'Issue ID', 'Issue Title', 'Severity', 'Category', 'Description', 'Recommendation']
+    [
+      'Module',
+      'Status',
+      'Duration (ms)',
+      'Issue ID',
+      'Issue Title',
+      'Severity',
+      'Category',
+      'Description',
+      'Recommendation',
+    ],
   ];
 
   for (const moduleResult of report.modules) {
@@ -343,7 +359,7 @@ function generateCsvContent(report: MonitoringReport): string {
         '',
         '',
         '',
-        ''
+        '',
       ]);
     } else {
       for (const issue of moduleResult.result.issues) {
@@ -356,15 +372,13 @@ function generateCsvContent(report: MonitoringReport): string {
           issue.severity,
           issue.category,
           issue.description.replace(/"/g, '""'), // Escape quotes
-          issue.recommendation?.replace(/"/g, '""') || ''
+          issue.recommendation?.replace(/"/g, '""') || '',
         ]);
       }
     }
   }
 
-  return rows.map(row => 
-    row.map(cell => `"${cell}"`).join(',')
-  ).join('\n');
+  return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
 }
 
 /**
@@ -372,14 +386,14 @@ function generateCsvContent(report: MonitoringReport): string {
  */
 function sortIssues(issues: MonitoringIssue[], sortBy?: string): MonitoringIssue[] {
   const sorted = [...issues];
-  
+
   switch (sortBy) {
     case 'severity':
-      const severityOrder: Record<SeverityLevel, number> = { 
-        [SeverityLevel.CRITICAL]: 0, 
-        [SeverityLevel.ERROR]: 1, 
-        [SeverityLevel.WARNING]: 2, 
-        [SeverityLevel.INFO]: 3 
+      const severityOrder: Record<SeverityLevel, number> = {
+        [SeverityLevel.CRITICAL]: 0,
+        [SeverityLevel.ERROR]: 1,
+        [SeverityLevel.WARNING]: 2,
+        [SeverityLevel.INFO]: 3,
       };
       sorted.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
       break;
@@ -390,7 +404,7 @@ function sortIssues(issues: MonitoringIssue[], sortBy?: string): MonitoringIssue
       // Keep original order
       break;
   }
-  
+
   return sorted;
 }
 
@@ -467,10 +481,14 @@ function getSeverityIcon(severity: SeverityLevel): string {
  */
 function createNoColorChalk(): any {
   const identity = (text: string) => text;
-  return new Proxy({}, {
-    get: () => new Proxy(identity, {
-      get: () => identity,
-      apply: (target, thisArg, args) => args[0]
-    })
-  });
+  return new Proxy(
+    {},
+    {
+      get: () =>
+        new Proxy(identity, {
+          get: () => identity,
+          apply: (target, thisArg, args) => args[0],
+        }),
+    }
+  );
 }

@@ -12,7 +12,7 @@ export enum ReportFormat {
   JSON = 'json',
   HTML = 'html',
   MARKDOWN = 'markdown',
-  CSV = 'csv'
+  CSV = 'csv',
 }
 
 /**
@@ -21,49 +21,49 @@ export enum ReportFormat {
 export interface ReportOptions {
   /** Include detailed information in the report */
   includeDetails?: boolean;
-  
+
   /** Enable color output (for console format) */
   colorOutput?: boolean;
-  
+
   /** Sort issues by specified criteria */
   sortBy?: 'severity' | 'module' | 'category' | 'timestamp';
-  
+
   /** Filter issues by severity level */
   severityFilter?: string[];
-  
+
   /** Filter issues by module */
   moduleFilter?: string[];
-  
+
   /** Include metadata in the report */
   includeMetadata?: boolean;
-  
+
   /** Custom title for the report */
   title?: string;
-  
+
   /** Custom description for the report */
   description?: string;
-  
+
   /** Include recommendations section */
   includeRecommendations?: boolean;
-  
+
   /** Maximum number of issues to display per module */
   maxIssuesPerModule?: number;
-  
+
   /** Theme for HTML reports */
   theme?: 'light' | 'dark' | 'auto';
-  
+
   /** Include interactive features (for HTML) */
   interactive?: boolean;
-  
+
   /** Custom CSS for HTML reports */
   customCss?: string;
-  
+
   /** Include charts and visualizations */
   includeCharts?: boolean;
-  
+
   /** Compact mode for smaller output */
   compact?: boolean;
-  
+
   /** Include timestamp in filename */
   timestampInFilename?: boolean;
 }
@@ -74,16 +74,16 @@ export interface ReportOptions {
 export interface ReportFormatter {
   /** Unique identifier for the formatter */
   readonly id: string;
-  
+
   /** Human-readable name of the formatter */
   readonly name: string;
-  
+
   /** File extension for this format */
   readonly extension: string;
-  
+
   /** MIME type for this format */
   readonly mimeType: string;
-  
+
   /**
    * Format the monitoring report
    * @param report - The monitoring report to format
@@ -91,7 +91,7 @@ export interface ReportFormatter {
    * @returns The formatted report content
    */
   format(report: MonitoringReport, options?: ReportOptions): Promise<string>;
-  
+
   /**
    * Validate options for this formatter
    * @param options - Options to validate
@@ -106,10 +106,10 @@ export interface ReportFormatter {
 export interface ReportValidationResult {
   /** Whether the options are valid */
   isValid: boolean;
-  
+
   /** Validation errors */
   errors: string[];
-  
+
   /** Validation warnings */
   warnings: string[];
 }
@@ -120,22 +120,22 @@ export interface ReportValidationResult {
 export interface ReportGenerationResult {
   /** Whether the generation was successful */
   success: boolean;
-  
+
   /** Generated content (if successful) */
   content?: string;
-  
+
   /** Output file path (if saved) */
   filePath?: string;
-  
+
   /** Generation time in milliseconds */
   duration: number;
-  
+
   /** File size in bytes (if saved) */
   fileSize?: number;
-  
+
   /** Error message (if failed) */
   error?: string;
-  
+
   /** Warnings during generation */
   warnings: string[];
 }
@@ -146,19 +146,19 @@ export interface ReportGenerationResult {
 export interface ChartData {
   /** Chart type */
   type: 'pie' | 'bar' | 'line' | 'doughnut';
-  
+
   /** Chart title */
   title: string;
-  
+
   /** Data labels */
   labels: string[];
-  
+
   /** Data values */
   data: number[];
-  
+
   /** Background colors */
   backgroundColor?: string[];
-  
+
   /** Border colors */
   borderColor?: string[];
 }
@@ -169,34 +169,34 @@ export interface ChartData {
 export interface ReportTheme {
   /** Primary color */
   primaryColor: string;
-  
+
   /** Secondary color */
   secondaryColor: string;
-  
+
   /** Success color */
   successColor: string;
-  
+
   /** Warning color */
   warningColor: string;
-  
+
   /** Error color */
   errorColor: string;
-  
+
   /** Critical color */
   criticalColor: string;
-  
+
   /** Background color */
   backgroundColor: string;
-  
+
   /** Text color */
   textColor: string;
-  
+
   /** Border color */
   borderColor: string;
-  
+
   /** Font family */
   fontFamily: string;
-  
+
   /** Font size */
   fontSize: string;
 }
@@ -216,7 +216,7 @@ export const THEMES: Record<string, ReportTheme> = {
     textColor: '#212121',
     borderColor: '#e0e0e0',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    fontSize: '14px'
+    fontSize: '14px',
   },
   dark: {
     primaryColor: '#64b5f6',
@@ -229,6 +229,6 @@ export const THEMES: Record<string, ReportTheme> = {
     textColor: '#ffffff',
     borderColor: '#333333',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    fontSize: '14px'
-  }
+    fontSize: '14px',
+  },
 };

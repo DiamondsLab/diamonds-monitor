@@ -1,6 +1,6 @@
 /**
  * Token Supply Monitoring Module for Hardhat Diamond Monitor Plugin
- * 
+ *
  * Monitors token supply mechanics including total supply, minting/burning,
  * supply caps, and token distribution patterns.
  */
@@ -16,7 +16,7 @@ import {
   NetworkInfo,
   ConfigRequirement,
   ValidationResult,
-  MonitoringStatus
+  MonitoringStatus,
 } from '../core/types';
 
 /**
@@ -94,14 +94,15 @@ interface TokenSupplyModuleConfig {
 
 /**
  * Token Supply Monitoring Module
- * 
+ *
  * Monitors token supply mechanisms across different token standards (ERC20, ERC721, ERC1155)
  * implemented within the diamond contract.
  */
 export class TokenSupplyModule implements MonitoringModule {
   public readonly id = 'token-supply';
   public readonly name = 'Token Supply Monitoring';
-  public readonly description = 'Monitors token supply mechanisms, caps, and distribution patterns across ERC20/721/1155 standards';
+  public readonly description =
+    'Monitors token supply mechanisms, caps, and distribution patterns across ERC20/721/1155 standards';
   public readonly version = '1.0.0';
   public readonly category = 'tokenomics';
 
@@ -113,38 +114,38 @@ export class TokenSupplyModule implements MonitoringModule {
       decimals: '0x313ce567',
       symbol: '0x95d89b41',
       name: '0x06fdde03',
-      balanceOf: '0x70a08231'
+      balanceOf: '0x70a08231',
     },
     // ERC721
     erc721: {
       totalSupply: '0x18160ddd',
       tokenByIndex: '0x4f6ccce7',
       tokenOfOwnerByIndex: '0x2f745c59',
-      tokenURI: '0xc87b56dd'
+      tokenURI: '0xc87b56dd',
     },
     // ERC1155
     erc1155: {
       balanceOf: '0x00fdd58e',
       balanceOfBatch: '0x4e1273f4',
-      uri: '0x0e89341c'
+      uri: '0x0e89341c',
     },
     // Common extensions
     capped: {
-      cap: '0x355274ea'
+      cap: '0x355274ea',
     },
     mintable: {
       mint: '0x40c10f19',
-      mintTo: '0x449a52f8'
+      mintTo: '0x449a52f8',
     },
     burnable: {
       burn: '0x42966c68',
-      burnFrom: '0x79cc6790'
+      burnFrom: '0x79cc6790',
     },
     pausable: {
       paused: '0x5c975abb',
       pause: '0x8456cb59',
-      unpause: '0x3f4ba83a'
-    }
+      unpause: '0x3f4ba83a',
+    },
   };
 
   /**
@@ -157,62 +158,62 @@ export class TokenSupplyModule implements MonitoringModule {
         type: 'boolean',
         required: false,
         description: 'Whether to monitor ERC20 token supply',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'checkERC721',
         type: 'boolean',
         required: false,
         description: 'Whether to monitor ERC721 token supply',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'checkERC1155',
         type: 'boolean',
         required: false,
         description: 'Whether to monitor ERC1155 token supply',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'enforceSupplyCaps',
         type: 'boolean',
         required: false,
         description: 'Whether to enforce supply cap validation',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'maxTotalSupply',
         type: 'string',
         required: false,
-        description: 'Maximum allowed total supply (as string to handle large numbers)'
+        description: 'Maximum allowed total supply (as string to handle large numbers)',
       },
       {
         key: 'minTotalSupply',
         type: 'string',
         required: false,
-        description: 'Minimum expected total supply (as string to handle large numbers)'
+        description: 'Minimum expected total supply (as string to handle large numbers)',
       },
       {
         key: 'requireMintCap',
         type: 'boolean',
         required: false,
         description: 'Whether a minting cap should be required',
-        defaultValue: false
+        defaultValue: false,
       },
       {
         key: 'allowInfiniteSupply',
         type: 'boolean',
         required: false,
         description: 'Whether infinite supply tokens are allowed',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'checkPauseState',
         type: 'boolean',
         required: false,
         description: 'Whether to monitor pause state of tokens',
-        defaultValue: true
-      }
+        defaultValue: true,
+      },
     ];
   }
 
@@ -224,7 +225,15 @@ export class TokenSupplyModule implements MonitoringModule {
     const warnings: string[] = [];
 
     // Validate boolean fields
-    const booleanFields = ['checkERC20', 'checkERC721', 'checkERC1155', 'enforceSupplyCaps', 'requireMintCap', 'allowInfiniteSupply', 'checkPauseState'];
+    const booleanFields = [
+      'checkERC20',
+      'checkERC721',
+      'checkERC1155',
+      'enforceSupplyCaps',
+      'requireMintCap',
+      'allowInfiniteSupply',
+      'checkPauseState',
+    ];
     for (const field of booleanFields) {
       if (config[field] !== undefined && typeof config[field] !== 'boolean') {
         errors.push(`${field} must be a boolean`);
@@ -248,14 +257,17 @@ export class TokenSupplyModule implements MonitoringModule {
       }
     }
 
-    if (config.expectedTokenStandards !== undefined && !Array.isArray(config.expectedTokenStandards)) {
+    if (
+      config.expectedTokenStandards !== undefined &&
+      !Array.isArray(config.expectedTokenStandards)
+    ) {
       errors.push('expectedTokenStandards must be an array');
     }
 
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -302,33 +314,37 @@ export class TokenSupplyModule implements MonitoringModule {
       this.log(context, 'info', `✅ Token supply monitoring completed in ${executionTime}ms`);
 
       return {
-        status: issues.some(i => i.severity === SeverityLevel.ERROR || i.severity === SeverityLevel.CRITICAL) 
-          ? MonitoringStatus.FAIL : MonitoringStatus.PASS,
+        status: issues.some(
+          i => i.severity === SeverityLevel.ERROR || i.severity === SeverityLevel.CRITICAL
+        )
+          ? MonitoringStatus.FAIL
+          : MonitoringStatus.PASS,
         issues,
         executionTime,
         metadata: {
           analysis,
-          moduleConfig
-        }
+          moduleConfig,
+        },
       };
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
       this.log(context, 'error', `❌ Token supply monitoring failed: ${(error as Error).message}`);
 
-      issues.push(this.createIssue(
-        'token-supply-error',
-        'Token Supply Monitoring Failed',
-        `Failed to analyze token supply: ${(error as Error).message}`,
-        SeverityLevel.ERROR,
-        'execution'
-      ));
+      issues.push(
+        this.createIssue(
+          'token-supply-error',
+          'Token Supply Monitoring Failed',
+          `Failed to analyze token supply: ${(error as Error).message}`,
+          SeverityLevel.ERROR,
+          'execution'
+        )
+      );
 
       return {
         status: MonitoringStatus.FAIL,
         issues,
         executionTime,
-        metadata: { error: (error as Error).message }
+        metadata: { error: (error as Error).message },
       };
     }
   }
@@ -338,13 +354,13 @@ export class TokenSupplyModule implements MonitoringModule {
    */
   private async analyzeTokenSupply(context: MonitoringContext): Promise<TokenSupplyAnalysis> {
     const { diamond, provider } = context;
-    
+
     const analysis: TokenSupplyAnalysis = {
       hasERC20: false,
       hasERC721: false,
       hasERC1155: false,
       supplyIssues: [],
-      totalTokenContracts: 0
+      totalTokenContracts: 0,
     };
 
     // Check for ERC20 implementation
@@ -380,21 +396,28 @@ export class TokenSupplyModule implements MonitoringModule {
   /**
    * Check ERC20 token supply information
    */
-  private async checkERC20Supply(address: string, provider: any): Promise<ERC20SupplyInfo | undefined> {
+  private async checkERC20Supply(
+    address: string,
+    provider: any
+  ): Promise<ERC20SupplyInfo | undefined> {
     try {
       // Ensure address is properly formatted
       if (!ethers.isAddress(address)) {
         return undefined;
       }
-      
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function totalSupply() view returns (uint256)',
-        'function decimals() view returns (uint8)',
-        'function symbol() view returns (string)',
-        'function name() view returns (string)',
-        'function cap() view returns (uint256)',
-        'function paused() view returns (bool)'
-      ], provider);
+
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        [
+          'function totalSupply() view returns (uint256)',
+          'function decimals() view returns (uint8)',
+          'function symbol() view returns (string)',
+          'function name() view returns (string)',
+          'function cap() view returns (uint256)',
+          'function paused() view returns (bool)',
+        ],
+        provider
+      );
 
       const totalSupply = await contract.totalSupply();
       const decimals = await contract.decimals();
@@ -427,7 +450,7 @@ export class TokenSupplyModule implements MonitoringModule {
         remainingSupply: hasCap && cap ? cap - totalSupply : undefined,
         isMintable: await this.checkMintable(address, provider),
         isBurnable: await this.checkBurnable(address, provider),
-        isPaused
+        isPaused,
       };
     } catch {
       return undefined;
@@ -437,18 +460,25 @@ export class TokenSupplyModule implements MonitoringModule {
   /**
    * Check ERC721 token supply information
    */
-  private async checkERC721Supply(address: string, provider: any): Promise<ERC721SupplyInfo | undefined> {
+  private async checkERC721Supply(
+    address: string,
+    provider: any
+  ): Promise<ERC721SupplyInfo | undefined> {
     try {
       // Ensure address is properly formatted
       if (!ethers.isAddress(address)) {
         return undefined;
       }
-      
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function totalSupply() view returns (uint256)',
-        'function maxSupply() view returns (uint256)',
-        'function paused() view returns (bool)'
-      ], provider);
+
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        [
+          'function totalSupply() view returns (uint256)',
+          'function maxSupply() view returns (uint256)',
+          'function paused() view returns (bool)',
+        ],
+        provider
+      );
 
       const totalSupply = await contract.totalSupply();
 
@@ -472,7 +502,7 @@ export class TokenSupplyModule implements MonitoringModule {
         remainingSupply: maxSupply ? maxSupply - totalSupply : undefined,
         isMintable: await this.checkMintable(address, provider),
         isBurnable: await this.checkBurnable(address, provider),
-        isPaused
+        isPaused,
       };
     } catch {
       return undefined;
@@ -482,17 +512,21 @@ export class TokenSupplyModule implements MonitoringModule {
   /**
    * Check ERC1155 token supply information
    */
-  private async checkERC1155Supply(address: string, provider: any): Promise<ERC1155SupplyInfo | undefined> {
+  private async checkERC1155Supply(
+    address: string,
+    provider: any
+  ): Promise<ERC1155SupplyInfo | undefined> {
     try {
       // Ensure address is properly formatted
       if (!ethers.isAddress(address)) {
         return undefined;
       }
-      
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function uri(uint256) view returns (string)',
-        'function paused() view returns (bool)'
-      ], provider);
+
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        ['function uri(uint256) view returns (string)', 'function paused() view returns (bool)'],
+        provider
+      );
 
       let uri: string | undefined;
       try {
@@ -515,7 +549,7 @@ export class TokenSupplyModule implements MonitoringModule {
         isMintable: await this.checkMintable(address, provider),
         isBurnable: await this.checkBurnable(address, provider),
         isPaused,
-        uri
+        uri,
       };
     } catch {
       return undefined;
@@ -531,11 +565,13 @@ export class TokenSupplyModule implements MonitoringModule {
       if (!ethers.isAddress(address)) {
         return false;
       }
-      
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function mint(address,uint256) external'
-      ], provider);
-      
+
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        ['function mint(address,uint256) external'],
+        provider
+      );
+
       // Try to get the function (will throw if not present)
       contract.interface.getFunction('mint');
       return true;
@@ -553,11 +589,13 @@ export class TokenSupplyModule implements MonitoringModule {
       if (!ethers.isAddress(address)) {
         return false;
       }
-      
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function burn(uint256) external'
-      ], provider);
-      
+
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        ['function burn(uint256) external'],
+        provider
+      );
+
       // Try to get the function (will throw if not present)
       contract.interface.getFunction('burn');
       return true;
@@ -569,67 +607,80 @@ export class TokenSupplyModule implements MonitoringModule {
   /**
    * Monitor ERC20 supply patterns
    */
-  private monitorERC20Supply(erc20Info: ERC20SupplyInfo, config: TokenSupplyModuleConfig): MonitoringIssue[] {
+  private monitorERC20Supply(
+    erc20Info: ERC20SupplyInfo,
+    config: TokenSupplyModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     // Check total supply limits
     if (config.maxTotalSupply) {
       const maxSupply = BigInt(config.maxTotalSupply);
       if (erc20Info.totalSupply > maxSupply) {
-        issues.push(this.createIssue(
-          'erc20-supply-exceeded',
-          'ERC20 Supply Exceeds Maximum',
-          `Total supply ${erc20Info.totalSupply} exceeds maximum ${maxSupply}`,
-          SeverityLevel.ERROR,
-          'supply-limits'
-        ));
+        issues.push(
+          this.createIssue(
+            'erc20-supply-exceeded',
+            'ERC20 Supply Exceeds Maximum',
+            `Total supply ${erc20Info.totalSupply} exceeds maximum ${maxSupply}`,
+            SeverityLevel.ERROR,
+            'supply-limits'
+          )
+        );
       }
     }
 
     if (config.minTotalSupply) {
       const minSupply = BigInt(config.minTotalSupply);
       if (erc20Info.totalSupply < minSupply) {
-        issues.push(this.createIssue(
-          'erc20-supply-below-minimum',
-          'ERC20 Supply Below Minimum',
-          `Total supply ${erc20Info.totalSupply} is below minimum ${minSupply}`,
-          SeverityLevel.WARNING,
-          'supply-limits'
-        ));
+        issues.push(
+          this.createIssue(
+            'erc20-supply-below-minimum',
+            'ERC20 Supply Below Minimum',
+            `Total supply ${erc20Info.totalSupply} is below minimum ${minSupply}`,
+            SeverityLevel.WARNING,
+            'supply-limits'
+          )
+        );
       }
     }
 
     // Check for supply cap requirements
     if (config.requireMintCap && !erc20Info.hasCap) {
-      issues.push(this.createIssue(
-        'erc20-missing-cap',
-        'ERC20 Missing Supply Cap',
-        'Token requires a supply cap but none is implemented',
-        SeverityLevel.ERROR,
-        'supply-caps'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc20-missing-cap',
+          'ERC20 Missing Supply Cap',
+          'Token requires a supply cap but none is implemented',
+          SeverityLevel.ERROR,
+          'supply-caps'
+        )
+      );
     }
 
     // Check infinite supply
     if (!config.allowInfiniteSupply && !erc20Info.hasCap && erc20Info.isMintable) {
-      issues.push(this.createIssue(
-        'erc20-infinite-supply',
-        'ERC20 Infinite Supply Risk',
-        'Token is mintable without a supply cap, allowing infinite inflation',
-        SeverityLevel.WARNING,
-        'supply-caps'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc20-infinite-supply',
+          'ERC20 Infinite Supply Risk',
+          'Token is mintable without a supply cap, allowing infinite inflation',
+          SeverityLevel.WARNING,
+          'supply-caps'
+        )
+      );
     }
 
     // Check pause state
     if (config.checkPauseState && erc20Info.isPaused) {
-      issues.push(this.createIssue(
-        'erc20-paused',
-        'ERC20 Token is Paused',
-        'Token transfers are currently paused',
-        SeverityLevel.WARNING,
-        'pause-state'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc20-paused',
+          'ERC20 Token is Paused',
+          'Token transfers are currently paused',
+          SeverityLevel.WARNING,
+          'pause-state'
+        )
+      );
     }
 
     return issues;
@@ -638,40 +689,49 @@ export class TokenSupplyModule implements MonitoringModule {
   /**
    * Monitor ERC721 supply patterns
    */
-  private monitorERC721Supply(erc721Info: ERC721SupplyInfo, config: TokenSupplyModuleConfig): MonitoringIssue[] {
+  private monitorERC721Supply(
+    erc721Info: ERC721SupplyInfo,
+    config: TokenSupplyModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     // Check if max supply is implemented
     if (config.requireMintCap && !erc721Info.maxSupply) {
-      issues.push(this.createIssue(
-        'erc721-missing-max-supply',
-        'ERC721 Missing Max Supply',
-        'NFT collection requires max supply but none is implemented',
-        SeverityLevel.ERROR,
-        'supply-caps'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc721-missing-max-supply',
+          'ERC721 Missing Max Supply',
+          'NFT collection requires max supply but none is implemented',
+          SeverityLevel.ERROR,
+          'supply-caps'
+        )
+      );
     }
 
     // Check if max supply is reached
     if (erc721Info.maxSupply && erc721Info.totalSupply >= erc721Info.maxSupply) {
-      issues.push(this.createIssue(
-        'erc721-max-supply-reached',
-        'ERC721 Max Supply Reached',
-        'NFT collection has reached its maximum supply',
-        SeverityLevel.INFO,
-        'supply-limits'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc721-max-supply-reached',
+          'ERC721 Max Supply Reached',
+          'NFT collection has reached its maximum supply',
+          SeverityLevel.INFO,
+          'supply-limits'
+        )
+      );
     }
 
     // Check pause state
     if (config.checkPauseState && erc721Info.isPaused) {
-      issues.push(this.createIssue(
-        'erc721-paused',
-        'ERC721 Token is Paused',
-        'NFT transfers are currently paused',
-        SeverityLevel.WARNING,
-        'pause-state'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc721-paused',
+          'ERC721 Token is Paused',
+          'NFT transfers are currently paused',
+          SeverityLevel.WARNING,
+          'pause-state'
+        )
+      );
     }
 
     return issues;
@@ -680,29 +740,36 @@ export class TokenSupplyModule implements MonitoringModule {
   /**
    * Monitor ERC1155 supply patterns
    */
-  private monitorERC1155Supply(erc1155Info: ERC1155SupplyInfo, config: TokenSupplyModuleConfig): MonitoringIssue[] {
+  private monitorERC1155Supply(
+    erc1155Info: ERC1155SupplyInfo,
+    config: TokenSupplyModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     // Check pause state
     if (config.checkPauseState && erc1155Info.isPaused) {
-      issues.push(this.createIssue(
-        'erc1155-paused',
-        'ERC1155 Token is Paused',
-        'Multi-token transfers are currently paused',
-        SeverityLevel.WARNING,
-        'pause-state'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc1155-paused',
+          'ERC1155 Token is Paused',
+          'Multi-token transfers are currently paused',
+          SeverityLevel.WARNING,
+          'pause-state'
+        )
+      );
     }
 
     // Check for URI implementation
     if (!erc1155Info.uri) {
-      issues.push(this.createIssue(
-        'erc1155-missing-uri',
-        'ERC1155 Missing URI',
-        'Token URI is not implemented or accessible',
-        SeverityLevel.WARNING,
-        'metadata'
-      ));
+      issues.push(
+        this.createIssue(
+          'erc1155-missing-uri',
+          'ERC1155 Missing URI',
+          'Token URI is not implemented or accessible',
+          SeverityLevel.WARNING,
+          'metadata'
+        )
+      );
     }
 
     return issues;
@@ -711,30 +778,37 @@ export class TokenSupplyModule implements MonitoringModule {
   /**
    * Check for general supply issues
    */
-  private checkGeneralSupplyIssues(analysis: TokenSupplyAnalysis, config: TokenSupplyModuleConfig): MonitoringIssue[] {
+  private checkGeneralSupplyIssues(
+    analysis: TokenSupplyAnalysis,
+    config: TokenSupplyModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     // Check if any token implementation is found
     if (analysis.totalTokenContracts === 0) {
-      issues.push(this.createIssue(
-        'no-token-implementation',
-        'No Token Implementation Found',
-        'Diamond does not implement any standard token interfaces',
-        SeverityLevel.INFO,
-        'implementation'
-      ));
+      issues.push(
+        this.createIssue(
+          'no-token-implementation',
+          'No Token Implementation Found',
+          'Diamond does not implement any standard token interfaces',
+          SeverityLevel.INFO,
+          'implementation'
+        )
+      );
     }
 
     // Check for multiple token standards
     if (analysis.totalTokenContracts > 1) {
-      issues.push(this.createIssue(
-        'multiple-token-standards',
-        'Multiple Token Standards Detected',
-        `Diamond implements ${analysis.totalTokenContracts} different token standards`,
-        SeverityLevel.INFO,
-        'implementation',
-        'Ensure proper integration and avoid conflicts between different token standards'
-      ));
+      issues.push(
+        this.createIssue(
+          'multiple-token-standards',
+          'Multiple Token Standards Detected',
+          `Diamond implements ${analysis.totalTokenContracts} different token standards`,
+          SeverityLevel.INFO,
+          'implementation',
+          'Ensure proper integration and avoid conflicts between different token standards'
+        )
+      );
     }
 
     return issues;
@@ -768,7 +842,7 @@ export class TokenSupplyModule implements MonitoringModule {
       severity,
       category,
       recommendation,
-      metadata
+      metadata,
     };
   }
 }

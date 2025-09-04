@@ -1,6 +1,6 @@
 /**
  * Markdown Report Formatter
- * 
+ *
  * Generates GitHub-compatible Markdown reports with proper formatting,
  * tables, code blocks, and documentation-friendly structure.
  */
@@ -28,20 +28,20 @@ export class MarkdownFormatter implements ReportFormatter {
     sections.push(this.generateTOC(report, options));
     sections.push(this.generateSummary(report, options));
     sections.push(this.generateOverview(report, options));
-    
+
     // Module results
     sections.push(this.generateModuleResults(report, options));
-    
+
     // Detailed issues
     if (options?.includeDetails) {
       sections.push(this.generateDetailedIssues(report, options));
     }
-    
+
     // Recommendations
     if (options?.includeRecommendations && report.recommendations?.length) {
       sections.push(this.generateRecommendations(report, options));
     }
-    
+
     // Appendix
     if (options?.includeMetadata) {
       sections.push(this.generateAppendix(report, options));
@@ -68,7 +68,7 @@ export class MarkdownFormatter implements ReportFormatter {
     return {
       isValid: true,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -81,7 +81,7 @@ export class MarkdownFormatter implements ReportFormatter {
     const title = options?.title || `Diamond Monitoring Report`;
     const statusBadge = this.getStatusBadge(report.summary.status);
     const timestamp = options?.includeMetadata ? ` - ${report.timestamp.toLocaleDateString()}` : '';
-    
+
     return `# ${title}${timestamp}
 
 ${statusBadge}
@@ -101,7 +101,7 @@ ${options?.includeMetadata ? `**Generated:** ${new Date().toISOString()}  \n**Du
     const sections: string[] = [
       '- [Summary](#summary)',
       '- [Overview](#overview)',
-      '- [Module Results](#module-results)'
+      '- [Module Results](#module-results)',
     ];
 
     if (options?.includeDetails) {
@@ -127,9 +127,10 @@ ${sections.join('\n')}
    * Generate summary section
    */
   private generateSummary(report: MonitoringReport, options?: ReportOptions): string {
-    const passRate = report.summary.totalChecks > 0 
-      ? ((report.summary.passed / report.summary.totalChecks) * 100).toFixed(1)
-      : '0';
+    const passRate =
+      report.summary.totalChecks > 0
+        ? ((report.summary.passed / report.summary.totalChecks) * 100).toFixed(1)
+        : '0';
 
     return `## Summary
 
@@ -167,15 +168,15 @@ This report provides a comprehensive analysis of the ${report.diamond.name} diam
     if (criticalIssues > 0) {
       overview += `- 🚨 **${criticalIssues} Critical Issue${criticalIssues === 1 ? '' : 's'}** requiring immediate attention\n`;
     }
-    
+
     if (errorIssues > 0) {
       overview += `- ❌ **${errorIssues} Error${errorIssues === 1 ? '' : 's'}** that should be addressed\n`;
     }
-    
+
     if (warningIssues > 0) {
       overview += `- ⚠️ **${warningIssues} Warning${warningIssues === 1 ? '' : 's'}** for consideration\n`;
     }
-    
+
     if (infoIssues > 0) {
       overview += `- ℹ️ **${infoIssues} Informational item${infoIssues === 1 ? '' : 's'}**\n`;
     }
@@ -206,7 +207,7 @@ Each module performs specific monitoring tasks. Below are the detailed results:
       const statusIcon = this.getStatusIcon(moduleResult.status);
       const duration = (moduleResult.duration / 1000).toFixed(2);
       const issueCount = moduleResult.result.issues.length;
-      
+
       content += `### ${statusIcon} ${moduleResult.moduleName}
 
 **Status:** ${this.getStatusBadge(moduleResult.status)}  
@@ -217,25 +218,25 @@ Each module performs specific monitoring tasks. Below are the detailed results:
 
       if (issueCount > 0) {
         const issues = moduleResult.result.issues.slice(0, maxIssues);
-        
+
         content += `#### Issues\n\n`;
-        
+
         for (let i = 0; i < issues.length; i++) {
           const issue = issues[i];
           const severityIcon = this.getSeverityIcon(issue.severity);
-          
+
           content += `${i + 1}. **${severityIcon} ${issue.title}** (\`${issue.severity}\`)
    
    ${issue.description}
    
 `;
-          
+
           if (issue.recommendation) {
             content += `   > 💡 **Recommendation:** ${issue.recommendation}
    
 `;
           }
-          
+
           if (options?.includeMetadata && issue.metadata) {
             content += `   <details>
    <summary>Technical Details</summary>
@@ -248,20 +249,23 @@ Each module performs specific monitoring tasks. Below are the detailed results:
 `;
           }
         }
-        
+
         if (moduleResult.result.issues.length > maxIssues) {
           const remaining = moduleResult.result.issues.length - maxIssues;
           content += `<details>
 <summary>Show ${remaining} more issue${remaining === 1 ? '' : 's'}...</summary>
 
-${moduleResult.result.issues.slice(maxIssues).map((issue, index) => {
-  const severityIcon = this.getSeverityIcon(issue.severity);
-  return `${maxIssues + index + 1}. **${severityIcon} ${issue.title}** (\`${issue.severity}\`)
+${moduleResult.result.issues
+  .slice(maxIssues)
+  .map((issue, index) => {
+    const severityIcon = this.getSeverityIcon(issue.severity);
+    return `${maxIssues + index + 1}. **${severityIcon} ${issue.title}** (\`${issue.severity}\`)
    
    ${issue.description}
    
    ${issue.recommendation ? `> 💡 **Recommendation:** ${issue.recommendation}\n\n` : ''}`;
-}).join('')}
+  })
+  .join('')}
 </details>
 
 `;
@@ -295,10 +299,10 @@ ${JSON.stringify(moduleResult.result.metadata, null, 2)}
    * Generate detailed issues section
    */
   private generateDetailedIssues(report: MonitoringReport, options?: ReportOptions): string {
-    const allIssues = report.modules.flatMap(m => 
+    const allIssues = report.modules.flatMap(m =>
       m.result.issues.map(issue => ({ ...issue, module: m.moduleName }))
     );
-    
+
     if (allIssues.length === 0) {
       return `## Detailed Issues
 
@@ -310,7 +314,7 @@ ${JSON.stringify(moduleResult.result.metadata, null, 2)}
       [SeverityLevel.CRITICAL]: allIssues.filter(i => i.severity === SeverityLevel.CRITICAL),
       [SeverityLevel.ERROR]: allIssues.filter(i => i.severity === SeverityLevel.ERROR),
       [SeverityLevel.WARNING]: allIssues.filter(i => i.severity === SeverityLevel.WARNING),
-      [SeverityLevel.INFO]: allIssues.filter(i => i.severity === SeverityLevel.INFO)
+      [SeverityLevel.INFO]: allIssues.filter(i => i.severity === SeverityLevel.INFO),
     };
 
     let content = `## Detailed Issues
@@ -324,17 +328,17 @@ This section provides comprehensive details about all identified issues, organiz
 
       const severityIcon = this.getSeverityIcon(severity as SeverityLevel);
       const severityName = severity.charAt(0).toUpperCase() + severity.slice(1).toLowerCase();
-      
+
       content += `### ${severityIcon} ${severityName} Issues (${issues.length})
 
 `;
 
       // Sort issues by module
       const sortedIssues = this.sortIssues(issues, options?.sortBy);
-      
+
       for (let i = 0; i < sortedIssues.length; i++) {
         const issue = sortedIssues[i];
-        
+
         content += `#### ${i + 1}. ${issue.title}
 
 **Module:** ${issue.module}  
@@ -442,7 +446,7 @@ ${JSON.stringify(report.config, null, 2)}
       const statusIcon = this.getStatusIcon(m.status);
       const duration = (m.duration / 1000).toFixed(2);
       const issues = m.result.issues.length;
-      
+
       return `| ${statusIcon} ${m.moduleName} | ${m.status} | ${duration}s | ${issues} |`;
     });
 
@@ -458,7 +462,7 @@ ${rows.join('\n')}`;
     const filled = Math.round((percentage / 100) * width);
     const empty = width - filled;
     const bar = '█'.repeat(filled) + '░'.repeat(empty);
-    
+
     return `\`\`\`
 Progress: [${bar}] ${percentage.toFixed(1)}%
 \`\`\``;
@@ -505,11 +509,16 @@ Progress: [${bar}] ${percentage.toFixed(1)}%
    */
   private getStatusIcon(status: MonitoringStatus): string {
     switch (status) {
-      case MonitoringStatus.PASS: return '✅';
-      case MonitoringStatus.WARNING: return '⚠️';
-      case MonitoringStatus.FAIL: return '❌';
-      case MonitoringStatus.SKIPPED: return '⏭️';
-      default: return 'ℹ️';
+      case MonitoringStatus.PASS:
+        return '✅';
+      case MonitoringStatus.WARNING:
+        return '⚠️';
+      case MonitoringStatus.FAIL:
+        return '❌';
+      case MonitoringStatus.SKIPPED:
+        return '⏭️';
+      default:
+        return 'ℹ️';
     }
   }
 
@@ -518,11 +527,16 @@ Progress: [${bar}] ${percentage.toFixed(1)}%
    */
   private getSeverityIcon(severity: SeverityLevel): string {
     switch (severity) {
-      case SeverityLevel.CRITICAL: return '🚨';
-      case SeverityLevel.ERROR: return '❌';
-      case SeverityLevel.WARNING: return '⚠️';
-      case SeverityLevel.INFO: return 'ℹ️';
-      default: return '•';
+      case SeverityLevel.CRITICAL:
+        return '🚨';
+      case SeverityLevel.ERROR:
+        return '❌';
+      case SeverityLevel.WARNING:
+        return '⚠️';
+      case SeverityLevel.INFO:
+        return 'ℹ️';
+      default:
+        return '•';
     }
   }
 
@@ -531,16 +545,18 @@ Progress: [${bar}] ${percentage.toFixed(1)}%
    */
   private sortIssues(issues: any[], sortBy?: string): any[] {
     const sorted = [...issues];
-    
+
     switch (sortBy) {
       case 'severity':
-        const severityOrder: Record<string, number> = { 
-          [SeverityLevel.CRITICAL]: 0, 
-          [SeverityLevel.ERROR]: 1, 
-          [SeverityLevel.WARNING]: 2, 
-          [SeverityLevel.INFO]: 3 
+        const severityOrder: Record<string, number> = {
+          [SeverityLevel.CRITICAL]: 0,
+          [SeverityLevel.ERROR]: 1,
+          [SeverityLevel.WARNING]: 2,
+          [SeverityLevel.INFO]: 3,
         };
-        sorted.sort((a, b) => (severityOrder[a.severity] || 999) - (severityOrder[b.severity] || 999));
+        sorted.sort(
+          (a, b) => (severityOrder[a.severity] || 999) - (severityOrder[b.severity] || 999)
+        );
         break;
       case 'category':
         sorted.sort((a, b) => a.category.localeCompare(b.category));
@@ -549,7 +565,7 @@ Progress: [${bar}] ${percentage.toFixed(1)}%
         sorted.sort((a, b) => a.module.localeCompare(b.module));
         break;
     }
-    
+
     return sorted;
   }
 
@@ -557,7 +573,7 @@ Progress: [${bar}] ${percentage.toFixed(1)}%
    * Get fastest module
    */
   private getFastestModule(report: MonitoringReport): string {
-    const fastest = report.modules.reduce((min, m) => m.duration < min.duration ? m : min);
+    const fastest = report.modules.reduce((min, m) => (m.duration < min.duration ? m : min));
     return `${fastest.moduleName} (${(fastest.duration / 1000).toFixed(2)}s)`;
   }
 
@@ -565,7 +581,7 @@ Progress: [${bar}] ${percentage.toFixed(1)}%
    * Get slowest module
    */
   private getSlowestModule(report: MonitoringReport): string {
-    const slowest = report.modules.reduce((max, m) => m.duration > max.duration ? m : max);
+    const slowest = report.modules.reduce((max, m) => (m.duration > max.duration ? m : max));
     return `${slowest.moduleName} (${(slowest.duration / 1000).toFixed(2)}s)`;
   }
 }

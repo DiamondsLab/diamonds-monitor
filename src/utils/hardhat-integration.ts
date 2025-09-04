@@ -1,6 +1,6 @@
 /**
  * Hardhat Integration Utilities for Diamond Monitoring
- * 
+ *
  * Utility functions for integrating with Hardhat environment,
  * handling deployment artifacts, and network configurations.
  */
@@ -18,7 +18,7 @@ import { NetworkInfo, DiamondInfo } from '../core/types';
 export function getNetworkInfo(hre: HardhatRuntimeEnvironment): NetworkInfo {
   const network = hre.network;
   const config = network.config;
-  
+
   // Handle different network types
   let rpcUrl = 'unknown';
   if ('url' in config) {
@@ -26,13 +26,13 @@ export function getNetworkInfo(hre: HardhatRuntimeEnvironment): NetworkInfo {
   } else if (network.name === 'hardhat') {
     rpcUrl = 'http://localhost:8545';
   }
-  
+
   return {
     name: network.name,
     chainId: network.config.chainId || 0,
     rpcUrl,
     blockExplorerUrl: (config as any).blockExplorerUrl,
-    blockExplorerApiKey: (config as any).blockExplorerApiKey
+    blockExplorerApiKey: (config as any).blockExplorerApiKey,
   };
 }
 
@@ -59,60 +59,67 @@ export async function loadDeploymentInfo(
   const deploymentsDir = path.join(process.cwd(), 'deployments');
   const networkDir = path.join(deploymentsDir, networkName);
   const diamondFile = path.join(networkDir, `${diamondName}.json`);
-  
+
   try {
     await fs.access(diamondFile);
     const deploymentData = JSON.parse(await fs.readFile(diamondFile, 'utf8'));
-    
+
     // Handle nested network structure (e.g., { "polygon_amoy": { "DiamondAddress": "..." } })
     let diamondData = deploymentData;
     if (deploymentData[networkName]) {
       diamondData = deploymentData[networkName];
     }
-    
+
     return {
       name: diamondName,
       address: diamondData.address || diamondData.diamond?.address || diamondData.DiamondAddress,
       configPath: findDiamondConfig(diamondName),
       deploymentBlock: diamondData.receipt?.blockNumber || diamondData.blockNumber,
-      network: getNetworkInfo(hre)
+      network: getNetworkInfo(hre),
     };
   } catch {
     // Try alternative paths including GNUS.AI specific structure
     const networkInfo = getNetworkInfo(hre);
     const chainId = networkInfo.chainId;
-    
+
     const alternativePaths = [
-      path.join(process.cwd(), 'diamonds', diamondName, 'deployments', `${diamondName.toLowerCase()}-${networkName}-${chainId}.json`),
+      path.join(
+        process.cwd(),
+        'diamonds',
+        diamondName,
+        'deployments',
+        `${diamondName.toLowerCase()}-${networkName}-${chainId}.json`
+      ),
       path.join(process.cwd(), 'diamonds', diamondName, 'deployments', `${networkName}.json`),
       path.join(process.cwd(), 'diamonds', diamondName, 'deployment.json'),
       path.join(process.cwd(), 'config', 'diamonds', `${diamondName}.json`),
-      path.join(process.cwd(), 'deployments-test', networkName, `${diamondName}.json`)
+      path.join(process.cwd(), 'deployments-test', networkName, `${diamondName}.json`),
     ];
-    
+
     for (const altPath of alternativePaths) {
       try {
         await fs.access(altPath);
         const deploymentData = JSON.parse(await fs.readFile(altPath, 'utf8'));
-        
+
         // Handle nested network structure (e.g., { "polygon_amoy": { "DiamondAddress": "..." } })
         let diamondData = deploymentData;
         if (deploymentData[networkName]) {
           diamondData = deploymentData[networkName];
         }
-        
+
         return {
           name: diamondName,
-          address: diamondData.address || diamondData.diamond?.address || diamondData.DiamondAddress,
+          address:
+            diamondData.address || diamondData.diamond?.address || diamondData.DiamondAddress,
           configPath: findDiamondConfig(diamondName),
           deploymentBlock: diamondData.receipt?.blockNumber || diamondData.blockNumber,
-          network: networkInfo
+          network: networkInfo,
         };
       } catch {
         continue;
       }
     }
-    
+
     return null;
   }
 }
@@ -127,9 +134,9 @@ export function findDiamondConfig(diamondName: string): string | undefined {
     path.join(process.cwd(), 'diamonds', diamondName, 'config.json'),
     path.join(process.cwd(), 'config', 'diamonds', `${diamondName}.json`),
     path.join(process.cwd(), 'config', `${diamondName}.json`),
-    path.join(process.cwd(), `${diamondName}.diamond.json`)
+    path.join(process.cwd(), `${diamondName}.diamond.json`),
   ];
-  
+
   for (const configPath of possiblePaths) {
     try {
       require('fs').accessSync(configPath);
@@ -138,7 +145,7 @@ export function findDiamondConfig(diamondName: string): string | undefined {
       continue;
     }
   }
-  
+
   return undefined;
 }
 
@@ -151,16 +158,16 @@ export async function getAvailableDiamonds(
 ): Promise<string[]> {
   const deploymentsDir = path.join(process.cwd(), 'deployments');
   const networkDir = path.join(deploymentsDir, networkName);
-  
+
   try {
     await fs.access(networkDir);
     const files = await fs.readdir(networkDir);
-    
+
     const diamonds = files
       .filter(file => file.endsWith('.json') && !file.startsWith('.'))
       .map(file => file.replace('.json', ''))
       .filter(name => !['solcInputs'].includes(name)); // Filter out non-diamond files
-    
+
     return diamonds;
   } catch {
     return [];
@@ -177,23 +184,23 @@ export function validateHardhatEnvironment(hre: HardhatRuntimeEnvironment): {
 } {
   const errors: string[] = [];
   const warnings: string[] = [];
-  
+
   // Check if ethers is available
   const ethers = (hre as any).ethers;
   if (!ethers) {
     errors.push('Hardhat ethers plugin is required but not found');
   }
-  
+
   // Check if artifacts are available
   if (!hre.artifacts) {
     errors.push('Hardhat artifacts are not available');
   }
-  
+
   // Check network configuration
   if (!hre.network) {
     errors.push('Hardhat network configuration is not available');
   }
-  
+
   // Check if provider is available
   try {
     const provider = ethers?.provider;
@@ -203,20 +210,20 @@ export function validateHardhatEnvironment(hre: HardhatRuntimeEnvironment): {
   } catch {
     errors.push('Failed to access Ethereum provider');
   }
-  
+
   // Warn about common issues
   if (hre.network?.name === 'hardhat') {
     warnings.push('Using Hardhat local network - monitoring may not work as expected');
   }
-  
+
   if (!process.env.HARDHAT_NETWORK && hre.network?.name === 'localhost') {
     warnings.push('No HARDHAT_NETWORK environment variable set');
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
@@ -297,12 +304,12 @@ export function parseNetworkUrl(url: string): {
       protocol: parsed.protocol.replace(':', ''),
       host: parsed.hostname,
       port: parsed.port ? parseInt(parsed.port) : undefined,
-      path: parsed.pathname !== '/' ? parsed.pathname : undefined
+      path: parsed.pathname !== '/' ? parsed.pathname : undefined,
     };
   } catch {
     return {
       protocol: 'unknown',
-      host: 'unknown'
+      host: 'unknown',
     };
   }
 }

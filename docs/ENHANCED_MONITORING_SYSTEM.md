@@ -170,7 +170,7 @@ const report = await system.runMonitoring(
   diamond,
   provider,
   config,
-  ["security-check", "gas-optimization"], // Only these modules
+  ['security-check', 'gas-optimization'] // Only these modules
 );
 ```
 
@@ -190,10 +190,10 @@ const system = new DiamondMonitoringSystem(customLogger);
 ### Event Monitoring
 
 ```typescript
-system.addEventListener((event) => {
+system.addEventListener(event => {
   console.log(`Event: ${event.type} at ${event.timestamp}`);
-  if (event.type === "issue_found") {
-    console.log("Issue found:", event.data.issue);
+  if (event.type === 'issue_found') {
+    console.log('Issue found:', event.data.issue);
   }
 });
 ```
@@ -202,9 +202,7 @@ system.addEventListener((event) => {
 
 ```typescript
 const stats = system.getStatistics();
-console.log(
-  `Modules: ${stats.registeredModules}, Connections: ${stats.connectionPoolSize}`,
-);
+console.log(`Modules: ${stats.registeredModules}, Connections: ${stats.connectionPoolSize}`);
 ```
 
 ## ✅ Requirements Fulfillment

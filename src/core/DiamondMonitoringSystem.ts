@@ -1,6 +1,6 @@
 /**
  * Main Diamond Monitoring System for Hardhat Plugin
- * 
+ *
  * Orchestrates monitoring modules and manages the overall monitoring process
  * within the Hardhat environment.
  */
@@ -23,7 +23,7 @@ import {
   Logger,
   RetryConfig,
   ModuleDependency,
-  MonitoringModuleWithDeps
+  MonitoringModuleWithDeps,
 } from './types';
 
 /**
@@ -39,7 +39,7 @@ export class DiamondMonitoringSystem {
     maxAttempts: 3,
     baseDelayMs: 1000,
     maxDelayMs: 10000,
-    backoffMultiplier: 2
+    backoffMultiplier: 2,
   };
 
   /**
@@ -66,7 +66,7 @@ export class DiamondMonitoringSystem {
       },
       error: (message: string, ...args: any[]) => {
         console.error(chalk.red(`[ERROR] ${message}`), ...args);
-      }
+      },
     };
   }
 
@@ -175,13 +175,15 @@ export class DiamondMonitoringSystem {
     if (config.reporting.verbose) {
       this.logger.info('🔍 Starting Diamond Monitoring System');
       this.logger.info(`📍 Diamond: ${diamond.name} (${diamond.address})`);
-      this.logger.info(`🌐 Network: ${diamond.network.name} (Chain ID: ${diamond.network.chainId})`);
+      this.logger.info(
+        `🌐 Network: ${diamond.network.name} (Chain ID: ${diamond.network.chainId})`
+      );
     }
 
     this.emitEvent({
       type: 'monitoring_start',
       timestamp: new Date(),
-      data: { diamond, config }
+      data: { diamond, config },
     });
 
     try {
@@ -189,7 +191,7 @@ export class DiamondMonitoringSystem {
       const modulesToRun = this.getModulesToRun(config, moduleIds);
 
       if (modulesToRun.length === 0) {
-        const error = moduleIds 
+        const error = moduleIds
           ? `No specified modules found: ${moduleIds.join(', ')}`
           : 'No monitoring modules configured to run';
         this.logger.error(error);
@@ -200,17 +202,17 @@ export class DiamondMonitoringSystem {
       const orderedModules = this.orderModulesByDependencies(modulesToRun);
 
       // Validate configurations for all modules
-      await this.validateModuleConfigurations(orderedModules, { 
-        diamond, 
-        provider: this.getOrCreateProvider(provider, diamond.network), 
-        config, 
+      await this.validateModuleConfigurations(orderedModules, {
+        diamond,
+        provider: this.getOrCreateProvider(provider, diamond.network),
+        config,
         moduleConfig: {},
-        hre: (config as any).hre
+        hre: (config as any).hre,
       } as MonitoringContext);
 
       if (config.reporting.verbose) {
         this.logger.info(`🧪 Running ${orderedModules.length} monitoring modules:`);
-        orderedModules.forEach((module) => {
+        orderedModules.forEach(module => {
           this.logger.info(`   • ${module.name} (${module.id})`);
         });
       }
@@ -222,7 +224,7 @@ export class DiamondMonitoringSystem {
         config,
         moduleConfig: config.modules || {},
         hre: (config as any).hre,
-        verbose: config.reporting.verbose
+        verbose: config.reporting.verbose,
       };
 
       // Execute modules
@@ -237,7 +239,7 @@ export class DiamondMonitoringSystem {
       this.emitEvent({
         type: 'monitoring_complete',
         timestamp: new Date(),
-        data: { report }
+        data: { report },
       });
 
       if (config.reporting.verbose) {
@@ -249,16 +251,15 @@ export class DiamondMonitoringSystem {
       }
 
       return report;
-
     } catch (error) {
       const endTime = Date.now();
       const errorMessage = (error as Error).message;
-      
+
       this.logger.error(`❌ Diamond monitoring failed: ${errorMessage}`, {
         diamond: diamond.name,
         network: diamond.network.name,
         duration: endTime - startTime,
-        error: error as Error
+        error: error as Error,
       });
 
       if (config.reporting.verbose) {
@@ -272,14 +273,14 @@ export class DiamondMonitoringSystem {
           passed: 0,
           failed: 1,
           warnings: 0,
-          skipped: 0
+          skipped: 0,
         },
         modules: [],
         diamond,
         network: diamond.network,
         config,
         timestamp: new Date(startTime),
-        duration: endTime - startTime
+        duration: endTime - startTime,
       };
 
       return report;
@@ -302,7 +303,7 @@ export class DiamondMonitoringSystem {
     for (const module of modules) {
       const moduleConfig = context.moduleConfig[module.id] || {};
       const validation = module.validateConfig(moduleConfig);
-      
+
       if (!validation.isValid) {
         this.logger.error(`❌ Configuration validation failed for module '${module.id}':`);
         validation.errors.forEach(error => this.logger.error(`   • ${error}`));
@@ -324,9 +325,9 @@ export class DiamondMonitoringSystem {
    */
   private getModulesToRun(config: MonitoringConfig, moduleIds?: string[]): MonitoringModule[] {
     const availableModules = Array.from(this.modules.values());
-    
+
     // Filter by specific module IDs if provided
-    const filteredModules = moduleIds 
+    const filteredModules = moduleIds
       ? availableModules.filter(module => moduleIds.includes(module.id))
       : availableModules;
 
@@ -355,16 +356,17 @@ export class DiamondMonitoringSystem {
     const moduleMap = new Map<string, MonitoringModule>();
     const dependencyMap = new Map<string, string[]>();
     const inDegree = new Map<string, number>();
-    
+
     // Initialize maps
     modules.forEach(module => {
       moduleMap.set(module.id, module);
       inDegree.set(module.id, 0);
-      
+
       // Get dependencies if module supports them
       const moduleWithDeps = module as MonitoringModuleWithDeps;
       if (moduleWithDeps.getDependencies) {
-        const dependencies = moduleWithDeps.getDependencies()
+        const dependencies = moduleWithDeps
+          .getDependencies()
           .filter(dep => moduleMap.has(dep.moduleId))
           .map(dep => dep.moduleId);
         dependencyMap.set(module.id, dependencies);
@@ -428,7 +430,7 @@ export class DiamondMonitoringSystem {
    */
   private getOrCreateProvider(provider: Provider, network: NetworkInfo): Provider {
     const cacheKey = `${network.name}-${network.chainId}`;
-    
+
     if (this.connectionPool.has(cacheKey)) {
       this.logger.debug(`Reusing provider for ${network.name}`);
       return this.connectionPool.get(cacheKey)!;
@@ -452,15 +454,17 @@ export class DiamondMonitoringSystem {
     retryConfig: RetryConfig = this.defaultRetryConfig
   ): Promise<T> {
     let lastError: Error;
-    
+
     for (let attempt = 1; attempt <= retryConfig.maxAttempts; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error as Error;
-        
+
         if (attempt === retryConfig.maxAttempts) {
-          this.logger.error(`${operationName} failed after ${attempt} attempts: ${lastError.message}`);
+          this.logger.error(
+            `${operationName} failed after ${attempt} attempts: ${lastError.message}`
+          );
           throw lastError;
         }
 
@@ -469,7 +473,9 @@ export class DiamondMonitoringSystem {
           retryConfig.maxDelayMs
         );
 
-        this.logger.warn(`${operationName} failed (attempt ${attempt}/${retryConfig.maxAttempts}), retrying in ${delay}ms: ${lastError.message}`);
+        this.logger.warn(
+          `${operationName} failed (attempt ${attempt}/${retryConfig.maxAttempts}), retrying in ${delay}ms: ${lastError.message}`
+        );
         await this.sleep(delay);
       }
     }
@@ -495,12 +501,12 @@ export class DiamondMonitoringSystem {
   ): Promise<ModuleResult[]> {
     const results: ModuleResult[] = [];
     const semaphore = new Array(maxConcurrency).fill(null);
-    
+
     const promises = modules.map(async (module, index) => {
       // Wait for available slot
       const slotIndex = index % maxConcurrency;
       await semaphore[slotIndex];
-      
+
       const result = await this.runSingleModule(module, context);
       results.push(result);
       return result;
@@ -548,7 +554,7 @@ export class DiamondMonitoringSystem {
       type: 'module_start',
       timestamp: startTime,
       moduleId: module.id,
-      data: { module: module.name }
+      data: { module: module.name },
     });
 
     if (context.verbose) {
@@ -572,11 +578,11 @@ export class DiamondMonitoringSystem {
             status: MonitoringStatus.SKIPPED,
             issues: [],
             executionTime: endTime.getTime() - startTime.getTime(),
-            metadata: { reason: 'Module cannot monitor this diamond' }
+            metadata: { reason: 'Module cannot monitor this diamond' },
           },
           startTime,
           endTime,
-          duration: endTime.getTime() - startTime.getTime()
+          duration: endTime.getTime() - startTime.getTime(),
         };
 
         if (context.verbose) {
@@ -589,16 +595,13 @@ export class DiamondMonitoringSystem {
       // Create module-specific context
       const moduleContext: MonitoringContext = {
         ...context,
-        moduleConfig: context.moduleConfig[module.id] || {}
+        moduleConfig: context.moduleConfig[module.id] || {},
       };
 
       // Execute module monitoring with retry and timeout
       const moduleResult = await Promise.race([
-        this.executeWithRetry(
-          () => module.monitor(moduleContext),
-          `${module.name} monitoring`
-        ),
-        this.createTimeoutPromise(context.config.execution.timeoutMs, module.name)
+        this.executeWithRetry(() => module.monitor(moduleContext), `${module.name} monitoring`),
+        this.createTimeoutPromise(context.config.execution.timeoutMs, module.name),
       ]);
 
       const endTime = new Date();
@@ -609,7 +612,7 @@ export class DiamondMonitoringSystem {
         result: moduleResult,
         startTime,
         endTime,
-        duration: endTime.getTime() - startTime.getTime()
+        duration: endTime.getTime() - startTime.getTime(),
       };
 
       // Handle module issues
@@ -619,15 +622,17 @@ export class DiamondMonitoringSystem {
             type: 'issue_found',
             timestamp: new Date(),
             moduleId: module.id,
-            data: { issue }
+            data: { issue },
           });
         });
       }
 
       if (context.verbose) {
         const statusIcon = this.getStatusIcon(moduleResult.status);
-        this.logger.info(`${statusIcon} ${module.name} completed in ${moduleResult.executionTime}ms`);
-        
+        this.logger.info(
+          `${statusIcon} ${module.name} completed in ${moduleResult.executionTime}ms`
+        );
+
         if (moduleResult.issues.length > 0) {
           this.logger.warn(`   Found ${moduleResult.issues.length} issue(s)`);
         }
@@ -637,19 +642,18 @@ export class DiamondMonitoringSystem {
         type: 'module_complete',
         timestamp: endTime,
         moduleId: module.id,
-        data: { result: moduleResult }
+        data: { result: moduleResult },
       });
 
       return result;
-
     } catch (error) {
       const endTime = new Date();
       const errorMessage = (error as Error).message;
-      
-      this.logger.error(`Module '${module.name}' execution failed: ${errorMessage}`, { 
-        moduleId: module.id, 
+
+      this.logger.error(`Module '${module.name}' execution failed: ${errorMessage}`, {
+        moduleId: module.id,
         duration: endTime.getTime() - startTime.getTime(),
-        error: error as Error
+        error: error as Error,
       });
 
       const errorResult: ModuleResult = {
@@ -658,24 +662,26 @@ export class DiamondMonitoringSystem {
         status: MonitoringStatus.FAIL,
         result: {
           status: MonitoringStatus.FAIL,
-          issues: [{
-            id: 'module-error',
-            title: 'Module Execution Error',
-            description: `Module '${module.name}' failed: ${errorMessage}`,
-            severity: SeverityLevel.CRITICAL,
-            category: 'system',
-            metadata: { 
-              stackTrace: (error as Error).stack,
-              timestamp: endTime.toISOString()
-            }
-          }],
+          issues: [
+            {
+              id: 'module-error',
+              title: 'Module Execution Error',
+              description: `Module '${module.name}' failed: ${errorMessage}`,
+              severity: SeverityLevel.CRITICAL,
+              category: 'system',
+              metadata: {
+                stackTrace: (error as Error).stack,
+                timestamp: endTime.toISOString(),
+              },
+            },
+          ],
           executionTime: endTime.getTime() - startTime.getTime(),
-          metadata: { error: errorMessage }
+          metadata: { error: errorMessage },
         },
         startTime,
         endTime,
         duration: endTime.getTime() - startTime.getTime(),
-        error: error as Error
+        error: error as Error,
       };
 
       if (context.verbose) {
@@ -686,7 +692,7 @@ export class DiamondMonitoringSystem {
         type: 'module_error',
         timestamp: endTime,
         moduleId: module.id,
-        data: { error: errorMessage }
+        data: { error: errorMessage },
       });
 
       return errorResult;
@@ -697,7 +703,9 @@ export class DiamondMonitoringSystem {
           await module.cleanup(context);
         }
       } catch (cleanupError) {
-        this.logger.warn(`Cleanup failed for module '${module.name}': ${(cleanupError as Error).message}`);
+        this.logger.warn(
+          `Cleanup failed for module '${module.name}': ${(cleanupError as Error).message}`
+        );
       }
     }
   }
@@ -723,7 +731,10 @@ export class DiamondMonitoringSystem {
     startTime: number,
     endTime: number
   ): MonitoringReport {
-    const totalChecks = moduleResults.reduce((sum, result) => sum + (result.result.issues?.length || 0) + 1, 0);
+    const totalChecks = moduleResults.reduce(
+      (sum, result) => sum + (result.result.issues?.length || 0) + 1,
+      0
+    );
     const passed = moduleResults.filter(r => r.status === MonitoringStatus.PASS).length;
     const failed = moduleResults.filter(r => r.status === MonitoringStatus.FAIL).length;
     const warnings = moduleResults.filter(r => r.status === MonitoringStatus.WARNING).length;
@@ -744,14 +755,14 @@ export class DiamondMonitoringSystem {
         passed,
         failed,
         warnings,
-        skipped
+        skipped,
       },
       modules: moduleResults,
       diamond,
       network: diamond.network,
       config,
       timestamp: new Date(startTime),
-      duration: endTime - startTime
+      duration: endTime - startTime,
     };
   }
 
@@ -793,7 +804,7 @@ export class DiamondMonitoringSystem {
     return {
       registeredModules: this.modules.size,
       activeListeners: this.eventListeners.length,
-      connectionPoolSize: this.connectionPool.size
+      connectionPoolSize: this.connectionPool.size,
     };
   }
 

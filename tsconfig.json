@@ -22,14 +22,6 @@
     "newLine": "lf",
     "composite": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "docs/**",
-    "**/*.test.ts",
-    "**/*.spec.ts"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "docs/**", "**/*.test.ts", "**/*.spec.ts"]
 }

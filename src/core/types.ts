@@ -3,16 +3,16 @@
  */
 
 import { Provider } from 'ethers';
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 /**
  * Severity levels for monitoring issues
  */
 export enum SeverityLevel {
   INFO = 'info',
-  WARNING = 'warning', 
+  WARNING = 'warning',
   ERROR = 'error',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 /**
@@ -20,9 +20,9 @@ export enum SeverityLevel {
  */
 export enum MonitoringStatus {
   PASS = 'PASS',
-  FAIL = 'FAIL', 
+  FAIL = 'FAIL',
   WARNING = 'WARNING',
-  SKIPPED = 'SKIPPED'
+  SKIPPED = 'SKIPPED',
 }
 
 /**
@@ -32,7 +32,7 @@ export enum ReportFormat {
   CONSOLE = 'console',
   JSON = 'json',
   HTML = 'html',
-  CSV = 'csv'
+  CSV = 'csv',
 }
 
 /**
@@ -204,11 +204,14 @@ export interface MonitoringModule {
  */
 export interface MonitoringConfig {
   // Module configuration
-  modules: Record<string, {
-    enabled: boolean;
-    priority?: number;
-    config?: Record<string, any>;
-  }>;
+  modules: Record<
+    string,
+    {
+      enabled: boolean;
+      priority?: number;
+      config?: Record<string, any>;
+    }
+  >;
 
   // Execution configuration
   execution: {
@@ -238,7 +241,7 @@ export interface MonitoringConfig {
  */
 export interface TaskArgs {
   diamondName: string;
-  network?: string;  // Optional since we derive from Hardhat context
+  network?: string; // Optional since we derive from Hardhat context
   modules?: string;
   outputFormat?: string;
   outputFile?: string;
@@ -250,7 +253,7 @@ export interface TaskArgs {
 /**
  * Monitoring event types
  */
-export type MonitoringEventType = 
+export type MonitoringEventType =
   | 'monitoring_start'
   | 'monitoring_complete'
   | 'module_start'
@@ -318,10 +321,13 @@ export interface DiamondConfig {
   name: string;
   address: string;
   deploymentBlock?: number;
-  facets: Record<string, {
-    address: string;
-    selectors: string[];
-  }>;
+  facets: Record<
+    string,
+    {
+      address: string;
+      selectors: string[];
+    }
+  >;
   protocolVersion?: string;
   metadata?: Record<string, any>;
 }

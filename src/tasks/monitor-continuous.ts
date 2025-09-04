@@ -1,21 +1,21 @@
 /**
  * Continuous diamond monitoring task for Hardhat
- * 
+ *
  * Provides dedicated continuous monitoring with enhanced scheduling, alerting, and reporting
  */
 
-import { task } from "hardhat/config";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { task } from 'hardhat/config';
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import * as chalk from 'chalk';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { 
-  DiamondInfo, 
-  MonitoringConfig, 
+import {
+  DiamondInfo,
+  MonitoringConfig,
   ReportFormat,
   MonitoringReport,
-  MonitoringStatus 
+  MonitoringStatus,
 } from '../core/types';
 import { DiamondMonitoringSystem } from '../core/DiamondMonitoringSystem';
 import { ReportGenerator } from '../reports/ReportGenerator';
@@ -41,24 +41,24 @@ interface ContinuousMonitoringArgs {
   autoRestart?: boolean;
 }
 
-task("monitor-continuous", "Run continuous diamond monitoring with scheduling and alerting")
-  .addPositionalParam("diamondName", "Name of the diamond contract to monitor")
-  .addOptionalParam("targetNetwork", "Target network (overrides --network flag)")
-  .addOptionalParam("modules", "Comma-separated list of modules to run", "all")
-  .addOptionalParam("interval", "Monitoring interval in seconds", "300")
-  .addOptionalParam("outputFormat", "Report format (console|json|html|markdown|csv)", "console")
-  .addOptionalParam("outputDir", "Output directory for reports (auto-generated filenames)")
-  .addOptionalParam("configPath", "Path to custom configuration file")
-  .addOptionalParam("deploymentPath", "Path to diamond deployment files")
-  .addOptionalParam("alertThreshold", "Alert threshold (low|medium|high|critical)", "high")
-  .addOptionalParam("maxRuns", "Maximum number of runs (0 = infinite)", "0")
-  .addFlag("debug", "Enable verbose logging and detailed output")
-  .addFlag("failOnError", "Exit with error code if monitoring fails")
-  .addFlag("logRotation", "Enable log rotation for output files")
-  .addFlag("autoRestart", "Automatically restart on critical failures")
+task('monitor-continuous', 'Run continuous diamond monitoring with scheduling and alerting')
+  .addPositionalParam('diamondName', 'Name of the diamond contract to monitor')
+  .addOptionalParam('targetNetwork', 'Target network (overrides --network flag)')
+  .addOptionalParam('modules', 'Comma-separated list of modules to run', 'all')
+  .addOptionalParam('interval', 'Monitoring interval in seconds', '300')
+  .addOptionalParam('outputFormat', 'Report format (console|json|html|markdown|csv)', 'console')
+  .addOptionalParam('outputDir', 'Output directory for reports (auto-generated filenames)')
+  .addOptionalParam('configPath', 'Path to custom configuration file')
+  .addOptionalParam('deploymentPath', 'Path to diamond deployment files')
+  .addOptionalParam('alertThreshold', 'Alert threshold (low|medium|high|critical)', 'high')
+  .addOptionalParam('maxRuns', 'Maximum number of runs (0 = infinite)', '0')
+  .addFlag('debug', 'Enable verbose logging and detailed output')
+  .addFlag('failOnError', 'Exit with error code if monitoring fails')
+  .addFlag('logRotation', 'Enable log rotation for output files')
+  .addFlag('autoRestart', 'Automatically restart on critical failures')
   .setAction(async (taskArgs: ContinuousMonitoringArgs, hre: HardhatRuntimeEnvironment) => {
     const startTime = Date.now();
-    
+
     try {
       // Print header
       console.log(chalk.blue.bold('\n👁️  Continuous Diamond Monitoring System'));
@@ -66,25 +66,24 @@ task("monitor-continuous", "Run continuous diamond monitoring with scheduling an
 
       // Validate and setup monitoring
       await validateContinuousArgs(taskArgs, hre);
-      
+
       const config = await loadContinuousConfiguration(taskArgs, hre);
       const diamond = await loadDiamondInfo(taskArgs, hre);
-      
+
       // Initialize monitoring system
       const monitoringSystem = new DiamondMonitoringSystem();
-      
+
       // Setup continuous monitoring
       await setupContinuousMonitoring(monitoringSystem, diamond, config, taskArgs, hre);
-
     } catch (error) {
       console.error(chalk.red.bold('\n❌ Continuous monitoring setup failed:'));
       console.error(chalk.red(`   ${(error as Error).message}\n`));
-      
+
       if (taskArgs.debug) {
         console.error(chalk.gray('Stack trace:'));
         console.error(chalk.gray((error as Error).stack));
       }
-      
+
       process.exit(1);
     }
   });
@@ -96,7 +95,10 @@ task("monitor-continuous", "Run continuous diamond monitoring with scheduling an
 /**
  * Validate continuous monitoring arguments
  */
-async function validateContinuousArgs(taskArgs: ContinuousMonitoringArgs, hre: HardhatRuntimeEnvironment): Promise<void> {
+async function validateContinuousArgs(
+  taskArgs: ContinuousMonitoringArgs,
+  hre: HardhatRuntimeEnvironment
+): Promise<void> {
   if (taskArgs.debug) {
     console.log(chalk.blue('📋 Validating continuous monitoring arguments...'));
   }
@@ -118,7 +120,9 @@ async function validateContinuousArgs(taskArgs: ContinuousMonitoringArgs, hre: H
   // Validate alert threshold
   const validThresholds = ['low', 'medium', 'high', 'critical'];
   if (taskArgs.alertThreshold && !validThresholds.includes(taskArgs.alertThreshold)) {
-    throw new Error(`Invalid alert threshold '${taskArgs.alertThreshold}'. Valid options: ${validThresholds.join(', ')}`);
+    throw new Error(
+      `Invalid alert threshold '${taskArgs.alertThreshold}'. Valid options: ${validThresholds.join(', ')}`
+    );
   }
 
   // Validate output directory
@@ -137,7 +141,10 @@ async function validateContinuousArgs(taskArgs: ContinuousMonitoringArgs, hre: H
 /**
  * Load continuous monitoring configuration
  */
-async function loadContinuousConfiguration(taskArgs: ContinuousMonitoringArgs, hre: HardhatRuntimeEnvironment): Promise<MonitoringConfig> {
+async function loadContinuousConfiguration(
+  taskArgs: ContinuousMonitoringArgs,
+  hre: HardhatRuntimeEnvironment
+): Promise<MonitoringConfig> {
   if (taskArgs.debug) {
     console.log(chalk.blue('⚙️  Loading continuous monitoring configuration...'));
   }
@@ -150,14 +157,20 @@ async function loadContinuousConfiguration(taskArgs: ContinuousMonitoringArgs, h
       const configContent = fs.readFileSync(taskArgs.configPath, 'utf8');
       config = JSON.parse(configContent);
     } catch (error) {
-      throw new Error(`Failed to load configuration from ${taskArgs.configPath}: ${(error as Error).message}`);
+      throw new Error(
+        `Failed to load configuration from ${taskArgs.configPath}: ${(error as Error).message}`
+      );
     }
   }
 
   // Parse modules list
-  const modulesList = taskArgs.modules !== 'all' 
-    ? taskArgs.modules?.split(',').map(m => m.trim()).filter(m => m) || []
-    : [];
+  const modulesList =
+    taskArgs.modules !== 'all'
+      ? taskArgs.modules
+          ?.split(',')
+          .map(m => m.trim())
+          .filter(m => m) || []
+      : [];
 
   // Create monitoring configuration
   const monitoringConfig: MonitoringConfig = {
@@ -166,20 +179,20 @@ async function loadContinuousConfiguration(taskArgs: ContinuousMonitoringArgs, h
       parallelExecution: config.execution?.parallelExecution || false,
       maxConcurrency: config.execution?.maxConcurrency || 3,
       timeoutMs: config.execution?.timeoutMs || 60000, // Increased for continuous
-      failFast: config.execution?.failFast || false
+      failFast: config.execution?.failFast || false,
     },
     reporting: {
       format: (taskArgs.outputFormat as ReportFormat) || 'console',
       outputPath: taskArgs.outputDir,
       verbose: taskArgs.debug || false,
-      includeMetadata: config.reporting?.includeMetadata || true
+      includeMetadata: config.reporting?.includeMetadata || true,
     },
     network: {
       name: taskArgs.targetNetwork || hre.network.name,
       chainId: 0, // Will be set when loading diamond info
-      rpcUrl: '' // Will be set when loading diamond info
+      rpcUrl: '', // Will be set when loading diamond info
     },
-    diamond: {} as DiamondInfo // Will be set when loading diamond info
+    diamond: {} as DiamondInfo, // Will be set when loading diamond info
   };
 
   // Configure specific modules if provided
@@ -187,7 +200,7 @@ async function loadContinuousConfiguration(taskArgs: ContinuousMonitoringArgs, h
     modulesList.forEach(moduleId => {
       monitoringConfig.modules[moduleId] = {
         enabled: true,
-        config: config.modules?.[moduleId]?.config || {}
+        config: config.modules?.[moduleId]?.config || {},
       };
     });
   }
@@ -202,20 +215,29 @@ async function loadContinuousConfiguration(taskArgs: ContinuousMonitoringArgs, h
 /**
  * Load diamond information for continuous monitoring
  */
-async function loadDiamondInfo(taskArgs: ContinuousMonitoringArgs, hre: HardhatRuntimeEnvironment): Promise<DiamondInfo> {
+async function loadDiamondInfo(
+  taskArgs: ContinuousMonitoringArgs,
+  hre: HardhatRuntimeEnvironment
+): Promise<DiamondInfo> {
   if (taskArgs.debug) {
     console.log(chalk.blue('💎 Loading diamond information...'));
   }
 
   const networkName = taskArgs.targetNetwork || hre.network.name;
-  const deploymentPath = taskArgs.deploymentPath || path.join(hre.config.paths.root, 'deployments', networkName);
+  const deploymentPath =
+    taskArgs.deploymentPath || path.join(hre.config.paths.root, 'deployments', networkName);
 
   // Try to find diamond deployment file
   const possiblePaths = [
     path.join(deploymentPath, `${taskArgs.diamondName}.json`),
     path.join(deploymentPath, `${taskArgs.diamondName}Diamond.json`),
     path.join(deploymentPath, 'Diamond.json'),
-    path.join(hre.config.paths.root, 'diamond-deployments', networkName, `${taskArgs.diamondName}.json`)
+    path.join(
+      hre.config.paths.root,
+      'diamond-deployments',
+      networkName,
+      `${taskArgs.diamondName}.json`
+    ),
   ];
 
   let diamondDeployment: any = null;
@@ -236,7 +258,9 @@ async function loadDiamondInfo(taskArgs: ContinuousMonitoringArgs, hre: HardhatR
   }
 
   if (!diamondDeployment) {
-    throw new Error(`Diamond deployment not found for '${taskArgs.diamondName}' on network '${networkName}'`);
+    throw new Error(
+      `Diamond deployment not found for '${taskArgs.diamondName}' on network '${networkName}'`
+    );
   }
 
   // Get network configuration
@@ -266,8 +290,8 @@ async function loadDiamondInfo(taskArgs: ContinuousMonitoringArgs, hre: HardhatR
     network: {
       name: networkName,
       chainId,
-      rpcUrl
-    }
+      rpcUrl,
+    },
   };
 
   if (!diamond.address) {
@@ -293,10 +317,12 @@ async function setupContinuousMonitoring(
 ): Promise<void> {
   const interval = parseInt(taskArgs.interval || '300') * 1000;
   const maxRuns = parseInt(taskArgs.maxRuns || '0');
-  
+
   console.log(chalk.yellow.bold('\n👁️  STARTING CONTINUOUS MONITORING'));
   console.log(chalk.yellow(`   Diamond: ${diamond.name} (${diamond.address})`));
-  console.log(chalk.yellow(`   Network: ${diamond.network.name} (Chain ID: ${diamond.network.chainId})`));
+  console.log(
+    chalk.yellow(`   Network: ${diamond.network.name} (Chain ID: ${diamond.network.chainId})`)
+  );
   console.log(chalk.yellow(`   Interval: ${interval / 1000} seconds`));
   console.log(chalk.yellow(`   Max Runs: ${maxRuns === 0 ? 'unlimited' : maxRuns}`));
   console.log(chalk.yellow(`   Alert Threshold: ${taskArgs.alertThreshold}`));
@@ -330,38 +356,36 @@ async function setupContinuousMonitoring(
   // Main monitoring loop
   const runMonitoring = async (): Promise<void> => {
     if (isShuttingDown) return;
-    
+
     runCount++;
     const timestamp = new Date().toISOString();
-    
+
     console.log(chalk.blue(`\n[${timestamp}] Monitoring run #${runCount}`));
     console.log(chalk.blue('─'.repeat(60)));
 
     try {
       const provider = (hre as any).ethers.provider;
-      const moduleIds = Object.keys(config.modules).length > 0 
-        ? Object.keys(config.modules) 
-        : undefined;
+      const moduleIds =
+        Object.keys(config.modules).length > 0 ? Object.keys(config.modules) : undefined;
 
       // Execute monitoring
       const report = await system.runMonitoring(diamond, provider, config, moduleIds);
-      
+
       // Handle results
       await handleMonitoringResults(report, taskArgs, runCount);
-      
+
       // Check for alerts
       await checkAlerts(report, taskArgs);
-      
+
       // Reset consecutive failures on success
       consecutiveFailures = 0;
-      
-      console.log(chalk.green(`✅ Run #${runCount} completed successfully`));
 
+      console.log(chalk.green(`✅ Run #${runCount} completed successfully`));
     } catch (error) {
       consecutiveFailures++;
-      
+
       console.error(chalk.red(`❌ Run #${runCount} failed: ${(error as Error).message}`));
-      
+
       if (taskArgs.debug) {
         console.error(chalk.gray((error as Error).stack));
       }
@@ -369,10 +393,16 @@ async function setupContinuousMonitoring(
       // Check if we should restart or exit
       if (consecutiveFailures >= maxConsecutiveFailures) {
         if (taskArgs.autoRestart) {
-          console.log(chalk.yellow(`🔄 Auto-restarting after ${maxConsecutiveFailures} consecutive failures...`));
+          console.log(
+            chalk.yellow(
+              `🔄 Auto-restarting after ${maxConsecutiveFailures} consecutive failures...`
+            )
+          );
           consecutiveFailures = 0;
         } else {
-          console.error(chalk.red.bold(`💥 Stopping after ${maxConsecutiveFailures} consecutive failures`));
+          console.error(
+            chalk.red.bold(`💥 Stopping after ${maxConsecutiveFailures} consecutive failures`)
+          );
           process.exit(1);
         }
       }
@@ -412,7 +442,11 @@ async function setupContinuousMonitoring(
 /**
  * Handle monitoring results
  */
-async function handleMonitoringResults(report: MonitoringReport, taskArgs: ContinuousMonitoringArgs, runCount: number): Promise<void> {
+async function handleMonitoringResults(
+  report: MonitoringReport,
+  taskArgs: ContinuousMonitoringArgs,
+  runCount: number
+): Promise<void> {
   // Generate timestamped filename if output directory is specified
   if (taskArgs.outputDir && taskArgs.outputFormat !== 'console') {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -425,11 +459,11 @@ async function handleMonitoringResults(report: MonitoringReport, taskArgs: Conti
         includeMetadata: true,
         includeDetails: taskArgs.debug,
         colorOutput: false, // Disable colors for file output
-        includeRecommendations: true
+        includeRecommendations: true,
       };
 
       await ReportGenerator.generateReport(report, format, outputPath, options);
-      
+
       if (taskArgs.debug) {
         console.log(chalk.green(`📄 Report saved: ${outputPath}`));
       }
@@ -445,9 +479,12 @@ async function handleMonitoringResults(report: MonitoringReport, taskArgs: Conti
 /**
  * Check for alerts based on threshold
  */
-async function checkAlerts(report: MonitoringReport, taskArgs: ContinuousMonitoringArgs): Promise<void> {
+async function checkAlerts(
+  report: MonitoringReport,
+  taskArgs: ContinuousMonitoringArgs
+): Promise<void> {
   const threshold = taskArgs.alertThreshold || 'high';
-  const criticalIssues = report.modules.flatMap(m => 
+  const criticalIssues = report.modules.flatMap(m =>
     m.result.issues.filter(issue => shouldAlert(issue.severity, threshold))
   );
 
@@ -456,7 +493,7 @@ async function checkAlerts(report: MonitoringReport, taskArgs: ContinuousMonitor
     criticalIssues.forEach(issue => {
       console.log(chalk.red(`   • ${issue.title} (${issue.severity})`));
     });
-    
+
     // Here you could integrate with alerting systems (email, Slack, PagerDuty, etc.)
     // await sendAlert(criticalIssues, taskArgs);
   }
@@ -466,12 +503,13 @@ async function checkAlerts(report: MonitoringReport, taskArgs: ContinuousMonitor
  * Check if issue severity should trigger alert
  */
 function shouldAlert(severity: string, threshold: string): boolean {
-  const severityLevels = { 'info': 0, 'warning': 1, 'error': 2, 'critical': 3 };
-  const thresholdLevels = { 'low': 0, 'medium': 1, 'high': 2, 'critical': 3 };
-  
+  const severityLevels = { info: 0, warning: 1, error: 2, critical: 3 };
+  const thresholdLevels = { low: 0, medium: 1, high: 2, critical: 3 };
+
   const severityLevel = severityLevels[severity.toLowerCase() as keyof typeof severityLevels] ?? 0;
-  const thresholdLevel = thresholdLevels[threshold.toLowerCase() as keyof typeof thresholdLevels] ?? 2;
-  
+  const thresholdLevel =
+    thresholdLevels[threshold.toLowerCase() as keyof typeof thresholdLevels] ?? 2;
+
   return severityLevel >= thresholdLevel;
 }
 
@@ -480,11 +518,11 @@ function shouldAlert(severity: string, threshold: string): boolean {
  */
 function displayRunSummary(report: MonitoringReport, runCount: number, verbose?: boolean): void {
   const { summary } = report;
-  
+
   // Status indicator
   let statusIcon = '✅';
   let statusColor = chalk.green;
-  
+
   if (summary.failed > 0) {
     statusIcon = '❌';
     statusColor = chalk.red;
@@ -492,10 +530,16 @@ function displayRunSummary(report: MonitoringReport, runCount: number, verbose?:
     statusIcon = '⚠️';
     statusColor = chalk.yellow;
   }
-  
-  console.log(statusColor(`${statusIcon} Run #${runCount}: ${summary.status} (${report.duration}ms)`));
-  console.log(chalk.blue(`   Checks: ${summary.totalChecks} | Passed: ${summary.passed} | Failed: ${summary.failed} | Warnings: ${summary.warnings}`));
-  
+
+  console.log(
+    statusColor(`${statusIcon} Run #${runCount}: ${summary.status} (${report.duration}ms)`)
+  );
+  console.log(
+    chalk.blue(
+      `   Checks: ${summary.totalChecks} | Passed: ${summary.passed} | Failed: ${summary.failed} | Warnings: ${summary.warnings}`
+    )
+  );
+
   // Show module details in verbose mode
   if (verbose && report.modules.length > 0) {
     report.modules.forEach(module => {
@@ -511,10 +555,15 @@ function displayRunSummary(report: MonitoringReport, runCount: number, verbose?:
  */
 function getFileExtension(format?: string): string {
   switch (format) {
-    case 'json': return 'json';
-    case 'html': return 'html';
-    case 'markdown': return 'md';
-    case 'csv': return 'csv';
-    default: return 'txt';
+    case 'json':
+      return 'json';
+    case 'html':
+      return 'html';
+    case 'markdown':
+      return 'md';
+    case 'csv':
+      return 'csv';
+    default:
+      return 'txt';
   }
 }

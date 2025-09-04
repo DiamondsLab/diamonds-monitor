@@ -101,12 +101,12 @@ packages/diamonds-monitor/
 Example test structure:
 
 ```typescript
-describe("ClassName", () => {
-  describe("methodName", () => {
-    it("should return expected result when given valid input", () => {
+describe('ClassName', () => {
+  describe('methodName', () => {
+    it('should return expected result when given valid input', () => {
       // Arrange
-      const input = "test-input";
-      const expected = "expected-output";
+      const input = 'test-input';
+      const expected = 'expected-output';
 
       // Act
       const result = classInstance.methodName(input);

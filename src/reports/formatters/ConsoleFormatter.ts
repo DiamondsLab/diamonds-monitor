@@ -1,6 +1,6 @@
 /**
  * Console Report Formatter
- * 
+ *
  * Generates rich, colorful console output with progress indicators,
  * hierarchical display, and professional styling.
  */
@@ -28,10 +28,10 @@ export class ConsoleFormatter implements ReportFormatter {
 
     // Header section
     output.push(this.generateHeader(report, c, options));
-    
+
     // Summary section
     output.push(this.generateSummary(report, c, options));
-    
+
     // Statistics section
     output.push(this.generateStatistics(report, c, options));
 
@@ -67,14 +67,17 @@ export class ConsoleFormatter implements ReportFormatter {
       errors.push('maxIssuesPerModule must be at least 1');
     }
 
-    if (options?.sortBy && !['severity', 'module', 'category', 'timestamp'].includes(options.sortBy)) {
+    if (
+      options?.sortBy &&
+      !['severity', 'module', 'category', 'timestamp'].includes(options.sortBy)
+    ) {
       errors.push('sortBy must be one of: severity, module, category, timestamp');
     }
 
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -85,7 +88,7 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private generateHeader(report: MonitoringReport, c: any, options?: ReportOptions): string {
     const lines: string[] = [];
-    
+
     lines.push(c.blue('═'.repeat(80)));
     lines.push(c.blue.bold('              DIAMOND VERIFICATION REPORT              '));
     lines.push(c.blue('═'.repeat(80)));
@@ -98,14 +101,14 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private generateSummary(report: MonitoringReport, c: any, options?: ReportOptions): string {
     const lines: string[] = [];
-    
+
     lines.push(c.cyan('📋 SUMMARY'));
     lines.push(c.cyan('─'.repeat(40)));
-    
+
     lines.push(`Diamond: ${c.white.bold(report.diamond.name)}`);
     lines.push(`Address: ${c.white(report.diamond.address)}`);
     lines.push(`Network: ${c.white(report.network.name)} (Chain ID: ${report.network.chainId})`);
-    
+
     if (options?.includeMetadata) {
       lines.push(`Timestamp: ${c.white(report.timestamp.toISOString())}`);
       lines.push(`Duration: ${c.white((report.duration / 1000).toFixed(2))}s`);
@@ -125,31 +128,32 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private generateStatistics(report: MonitoringReport, c: any, options?: ReportOptions): string {
     const lines: string[] = [];
-    
+
     lines.push(c.cyan('📊 STATISTICS'));
     lines.push(c.cyan('─'.repeat(40)));
-    
+
     lines.push(`Total Checks: ${c.white.bold(report.summary.totalChecks)}`);
-    
+
     // Visual progress bar for checks
-    const passRate = report.summary.totalChecks > 0 
-      ? (report.summary.passed / report.summary.totalChecks) * 100 
-      : 0;
-    
+    const passRate =
+      report.summary.totalChecks > 0
+        ? (report.summary.passed / report.summary.totalChecks) * 100
+        : 0;
+
     if (!options?.compact) {
       lines.push(this.generateProgressBar(passRate, c));
     }
-    
+
     lines.push(`${c.green('✅ Passed:')} ${report.summary.passed}`);
-    
+
     if (report.summary.failed > 0) {
       lines.push(`${c.red('❌ Failed:')} ${report.summary.failed}`);
     }
-    
+
     if (report.summary.warnings > 0) {
       lines.push(`${c.yellow('⚠️  Warnings:')} ${report.summary.warnings}`);
     }
-    
+
     if (report.summary.skipped > 0) {
       lines.push(`${c.gray('⏭️  Skipped:')} ${report.summary.skipped}`);
     }
@@ -162,7 +166,7 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private generateModuleResults(report: MonitoringReport, c: any, options?: ReportOptions): string {
     const lines: string[] = [];
-    
+
     lines.push(c.cyan('🧩 MODULE RESULTS'));
     lines.push(c.cyan('─'.repeat(40)));
 
@@ -171,10 +175,10 @@ export class ConsoleFormatter implements ReportFormatter {
     for (const moduleResult of report.modules) {
       const moduleStatusColor = this.getStatusColor(moduleResult.status, c);
       const moduleIcon = this.getStatusIcon(moduleResult.status);
-      
+
       lines.push('');
       lines.push(`${moduleStatusColor(`${moduleIcon} ${moduleResult.moduleName}`)}`);
-      
+
       if (!options?.compact) {
         lines.push(`   Duration: ${c.gray((moduleResult.duration / 1000).toFixed(2))}s`);
         lines.push(`   Issues: ${this.getIssueCountText(moduleResult.result.issues.length, c)}`);
@@ -183,20 +187,22 @@ export class ConsoleFormatter implements ReportFormatter {
       if (moduleResult.result.issues.length > 0) {
         const sortedIssues = this.sortIssues(moduleResult.result.issues, options?.sortBy);
         const issuesToShow = sortedIssues.slice(0, maxIssues);
-        
+
         for (const issue of issuesToShow) {
           const issueColor = this.getSeverityColor(issue.severity, c);
           const issueIcon = this.getSeverityIcon(issue.severity);
           lines.push(`     ${issueColor(`${issueIcon} ${issue.title}`)}`);
-          
+
           if (options?.includeDetails && !options?.compact) {
             lines.push(`       ${c.gray(this.truncateText(issue.description, 80))}`);
           }
         }
-        
+
         if (moduleResult.result.issues.length > maxIssues) {
           const remaining = moduleResult.result.issues.length - maxIssues;
-          lines.push(`     ${c.gray(`... and ${remaining} more issue${remaining === 1 ? '' : 's'}`)}`);
+          lines.push(
+            `     ${c.gray(`... and ${remaining} more issue${remaining === 1 ? '' : 's'}`)}`
+          );
         }
       }
 
@@ -217,11 +223,15 @@ export class ConsoleFormatter implements ReportFormatter {
   /**
    * Generate critical issues section
    */
-  private generateCriticalIssues(report: MonitoringReport, c: any, options?: ReportOptions): string {
+  private generateCriticalIssues(
+    report: MonitoringReport,
+    c: any,
+    options?: ReportOptions
+  ): string {
     const allIssues = report.modules.flatMap(m => m.result.issues);
     const criticalIssues = allIssues.filter(i => i.severity === SeverityLevel.CRITICAL);
     const errorIssues = allIssues.filter(i => i.severity === SeverityLevel.ERROR);
-    
+
     if (criticalIssues.length === 0 && errorIssues.length === 0) {
       return '';
     }
@@ -229,24 +239,28 @@ export class ConsoleFormatter implements ReportFormatter {
     const lines: string[] = [];
     lines.push(c.red('🚨 CRITICAL & ERROR ISSUES'));
     lines.push(c.red('─'.repeat(40)));
-    
+
     const highPriorityIssues = [...criticalIssues, ...errorIssues];
-    
+
     highPriorityIssues.forEach((issue, index) => {
       const issueColor = this.getSeverityColor(issue.severity, c);
       const issueIcon = this.getSeverityIcon(issue.severity);
-      
+
       lines.push('');
       lines.push(`${index + 1}. ${issueColor(`${issueIcon} ${issue.title}`)}`);
       lines.push(`   Category: ${c.dim(issue.category)}`);
       lines.push(`   ${this.wrapText(issue.description, 77, '   ')}`);
-      
+
       if (issue.recommendation) {
-        lines.push(`   ${c.blue('💡 Recommendation:')} ${this.wrapText(issue.recommendation, 60, '      ')}`);
+        lines.push(
+          `   ${c.blue('💡 Recommendation:')} ${this.wrapText(issue.recommendation, 60, '      ')}`
+        );
       }
-      
+
       if (issue.metadata && options?.includeMetadata) {
-        lines.push(`   ${c.dim('Metadata: ' + JSON.stringify(issue.metadata, null, 2).replace(/\n/g, '\n   '))}`);
+        lines.push(
+          `   ${c.dim('Metadata: ' + JSON.stringify(issue.metadata, null, 2).replace(/\n/g, '\n   '))}`
+        );
       }
     });
 
@@ -256,13 +270,17 @@ export class ConsoleFormatter implements ReportFormatter {
   /**
    * Generate recommendations section
    */
-  private generateRecommendations(report: MonitoringReport, c: any, options?: ReportOptions): string {
+  private generateRecommendations(
+    report: MonitoringReport,
+    c: any,
+    options?: ReportOptions
+  ): string {
     if (!report.recommendations?.length) return '';
 
     const lines: string[] = [];
     lines.push(c.blue('💡 RECOMMENDATIONS'));
     lines.push(c.blue('─'.repeat(40)));
-    
+
     report.recommendations.forEach((recommendation, index) => {
       lines.push(`${index + 1}. ${this.wrapText(recommendation, 75, '   ')}`);
     });
@@ -275,9 +293,9 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private generateFooter(report: MonitoringReport, c: any, options?: ReportOptions): string {
     const lines: string[] = [];
-    
+
     lines.push(c.blue('═'.repeat(80)));
-    
+
     // Success message based on status
     switch (report.summary.status) {
       case MonitoringStatus.PASS:
@@ -312,7 +330,7 @@ export class ConsoleFormatter implements ReportFormatter {
     const filled = Math.round((percentage / 100) * width);
     const empty = width - filled;
     const bar = '█'.repeat(filled) + '░'.repeat(empty);
-    
+
     const color = percentage >= 80 ? c.green : percentage >= 60 ? c.yellow : c.red;
     return `Progress: [${color(bar)}] ${percentage.toFixed(1)}%`;
   }
@@ -322,11 +340,16 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private getStatusColor(status: MonitoringStatus, c: any): any {
     switch (status) {
-      case MonitoringStatus.PASS: return c.green.bold;
-      case MonitoringStatus.WARNING: return c.yellow.bold;
-      case MonitoringStatus.FAIL: return c.red.bold;
-      case MonitoringStatus.SKIPPED: return c.gray.bold;
-      default: return c.white.bold;
+      case MonitoringStatus.PASS:
+        return c.green.bold;
+      case MonitoringStatus.WARNING:
+        return c.yellow.bold;
+      case MonitoringStatus.FAIL:
+        return c.red.bold;
+      case MonitoringStatus.SKIPPED:
+        return c.gray.bold;
+      default:
+        return c.white.bold;
     }
   }
 
@@ -335,11 +358,16 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private getStatusIcon(status: MonitoringStatus): string {
     switch (status) {
-      case MonitoringStatus.PASS: return '✅';
-      case MonitoringStatus.WARNING: return '⚠️';
-      case MonitoringStatus.FAIL: return '❌';
-      case MonitoringStatus.SKIPPED: return '⏭️';
-      default: return 'ℹ️';
+      case MonitoringStatus.PASS:
+        return '✅';
+      case MonitoringStatus.WARNING:
+        return '⚠️';
+      case MonitoringStatus.FAIL:
+        return '❌';
+      case MonitoringStatus.SKIPPED:
+        return '⏭️';
+      default:
+        return 'ℹ️';
     }
   }
 
@@ -348,11 +376,16 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private getSeverityColor(severity: SeverityLevel, c: any): any {
     switch (severity) {
-      case SeverityLevel.CRITICAL: return c.red.bold;
-      case SeverityLevel.ERROR: return c.red;
-      case SeverityLevel.WARNING: return c.yellow;
-      case SeverityLevel.INFO: return c.blue;
-      default: return c.gray;
+      case SeverityLevel.CRITICAL:
+        return c.red.bold;
+      case SeverityLevel.ERROR:
+        return c.red;
+      case SeverityLevel.WARNING:
+        return c.yellow;
+      case SeverityLevel.INFO:
+        return c.blue;
+      default:
+        return c.gray;
     }
   }
 
@@ -361,11 +394,16 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private getSeverityIcon(severity: SeverityLevel): string {
     switch (severity) {
-      case SeverityLevel.CRITICAL: return '🚨';
-      case SeverityLevel.ERROR: return '❌';
-      case SeverityLevel.WARNING: return '⚠️';
-      case SeverityLevel.INFO: return 'ℹ️';
-      default: return '•';
+      case SeverityLevel.CRITICAL:
+        return '🚨';
+      case SeverityLevel.ERROR:
+        return '❌';
+      case SeverityLevel.WARNING:
+        return '⚠️';
+      case SeverityLevel.INFO:
+        return 'ℹ️';
+      default:
+        return '•';
     }
   }
 
@@ -383,16 +421,18 @@ export class ConsoleFormatter implements ReportFormatter {
    */
   private sortIssues(issues: any[], sortBy?: string): any[] {
     const sorted = [...issues];
-    
+
     switch (sortBy) {
       case 'severity':
-        const severityOrder: Record<string, number> = { 
-          [SeverityLevel.CRITICAL]: 0, 
-          [SeverityLevel.ERROR]: 1, 
-          [SeverityLevel.WARNING]: 2, 
-          [SeverityLevel.INFO]: 3 
+        const severityOrder: Record<string, number> = {
+          [SeverityLevel.CRITICAL]: 0,
+          [SeverityLevel.ERROR]: 1,
+          [SeverityLevel.WARNING]: 2,
+          [SeverityLevel.INFO]: 3,
         };
-        sorted.sort((a, b) => (severityOrder[a.severity] || 999) - (severityOrder[b.severity] || 999));
+        sorted.sort(
+          (a, b) => (severityOrder[a.severity] || 999) - (severityOrder[b.severity] || 999)
+        );
         break;
       case 'category':
         sorted.sort((a, b) => a.category.localeCompare(b.category));
@@ -401,7 +441,7 @@ export class ConsoleFormatter implements ReportFormatter {
         // Keep original order since they're already grouped by module
         break;
     }
-    
+
     return sorted;
   }
 
@@ -444,12 +484,16 @@ export class ConsoleFormatter implements ReportFormatter {
   private createNoColorChalk(): any {
     const identity = (text: string) => text;
     const boldIdentity = Object.assign(identity, { bold: identity });
-    
-    return new Proxy({}, {
-      get: () => new Proxy(boldIdentity, {
-        get: () => identity,
-        apply: (target, thisArg, args) => args[0] || ''
-      })
-    });
+
+    return new Proxy(
+      {},
+      {
+        get: () =>
+          new Proxy(boldIdentity, {
+            get: () => identity,
+            apply: (target, thisArg, args) => args[0] || '',
+          }),
+      }
+    );
   }
 }

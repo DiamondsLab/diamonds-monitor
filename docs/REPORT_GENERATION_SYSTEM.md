@@ -85,8 +85,8 @@ src/reports/
 ### Basic Report Generation
 
 ```typescript
-import { ReportGenerator } from "./src/reports/ReportGenerator";
-import { ReportFormat } from "./src/reports/types";
+import { ReportGenerator } from './src/reports/ReportGenerator';
+import { ReportFormat } from './src/reports/types';
 
 // Generate a console report
 const result = await ReportGenerator.generateReport(
@@ -95,9 +95,9 @@ const result = await ReportGenerator.generateReport(
   undefined,
   {
     colorOutput: true,
-    severityFilter: ["critical", "error"],
+    severityFilter: ['critical', 'error'],
     includeMetadata: true,
-  },
+  }
 );
 
 console.log(result.content);
@@ -110,12 +110,12 @@ console.log(result.content);
 const results = await ReportGenerator.generateMultipleReports(
   monitoringReport,
   [ReportFormat.JSON, ReportFormat.HTML, ReportFormat.MARKDOWN],
-  "./reports/monitoring-report",
+  './reports/monitoring-report',
   {
     includeMetadata: true,
     interactive: true,
     includeCharts: true,
-  },
+  }
 );
 ```
 
@@ -126,26 +126,21 @@ const results = await ReportGenerator.generateMultipleReports(
 const htmlReport = await ReportGenerator.generateReport(
   report,
   ReportFormat.HTML,
-  "./report.html",
+  './report.html',
   {
-    theme: "professional",
+    theme: 'professional',
     interactive: true,
     includeCharts: true,
-    customCss: ".my-custom-style { color: blue; }",
-  },
+    customCss: '.my-custom-style { color: blue; }',
+  }
 );
 
 // CSV with compact layout for analysis
-const csvReport = await ReportGenerator.generateReport(
-  report,
-  ReportFormat.CSV,
-  "./data.csv",
-  {
-    compact: true,
-    sortBy: "severity",
-    includeMetadata: false,
-  },
-);
+const csvReport = await ReportGenerator.generateReport(report, ReportFormat.CSV, './data.csv', {
+  compact: true,
+  sortBy: 'severity',
+  includeMetadata: false,
+});
 ```
 
 ## Key Features
@@ -209,11 +204,11 @@ const csvReport = await ReportGenerator.generateReport(
 
 ```typescript
 enum ReportFormat {
-  CONSOLE = "console",
-  JSON = "json",
-  HTML = "html",
-  MARKDOWN = "markdown",
-  CSV = "csv",
+  CONSOLE = 'console',
+  JSON = 'json',
+  HTML = 'html',
+  MARKDOWN = 'markdown',
+  CSV = 'csv',
 }
 
 interface ReportOptions {
@@ -224,10 +219,10 @@ interface ReportOptions {
 
   // Filtering and sorting
   severityFilter?: SeverityLevel[];
-  sortBy?: "severity" | "timestamp" | "category" | "module";
+  sortBy?: 'severity' | 'timestamp' | 'category' | 'module';
 
   // Format-specific options
-  theme?: "default" | "dark" | "professional" | "minimal";
+  theme?: 'default' | 'dark' | 'professional' | 'minimal';
   interactive?: boolean;
   includeCharts?: boolean;
   customCss?: string;
@@ -246,7 +241,7 @@ const report: MonitoringReport = await runMonitoring();
 const results = await ReportGenerator.generateMultipleReports(
   report,
   [ReportFormat.CONSOLE, ReportFormat.JSON, ReportFormat.HTML],
-  "./monitoring-results",
+  './monitoring-results'
 );
 ```
 

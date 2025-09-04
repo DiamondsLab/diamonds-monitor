@@ -1,6 +1,6 @@
 /**
  * Access Control Monitoring Module for Hardhat Diamond Monitor Plugin
- * 
+ *
  * Monitors access control mechanisms in the diamond including role-based access,
  * ownership patterns, and privilege escalation protection.
  */
@@ -16,7 +16,7 @@ import {
   NetworkInfo,
   ConfigRequirement,
   ValidationResult,
-  MonitoringStatus
+  MonitoringStatus,
 } from '../core/types';
 
 /**
@@ -72,14 +72,15 @@ interface AccessControlModuleConfig {
 
 /**
  * Access Control Monitoring Module
- * 
+ *
  * Monitors various access control mechanisms in diamond contracts including
  * ownership, role-based access control, and security best practices.
  */
 export class AccessControlModule implements MonitoringModule {
   public readonly id = 'access-control';
   public readonly name = 'Access Control Monitoring';
-  public readonly description = 'Monitors ownership, roles, and access control mechanisms in diamond contracts';
+  public readonly description =
+    'Monitors ownership, roles, and access control mechanisms in diamond contracts';
   public readonly version = '1.0.0';
   public readonly category = 'security';
 
@@ -89,7 +90,7 @@ export class AccessControlModule implements MonitoringModule {
     ownership: {
       owner: '0x8da5cb5b',
       transferOwnership: '0xf2fde38b',
-      renounceOwnership: '0x715018a6'
+      renounceOwnership: '0x715018a6',
     },
     // AccessControl (OpenZeppelin)
     accessControl: {
@@ -97,13 +98,13 @@ export class AccessControlModule implements MonitoringModule {
       getRoleAdmin: '0x248a9ca3',
       grantRole: '0x2f2ff15d',
       revokeRole: '0xd547741f',
-      renounceRole: '0x36568abe'
+      renounceRole: '0x36568abe',
     },
     // AccessControlEnumerable
     enumerable: {
       getRoleMember: '0x9010d07c',
-      getRoleMemberCount: '0xca15c873'
-    }
+      getRoleMemberCount: '0xca15c873',
+    },
   };
 
   // Standard role hashes
@@ -112,7 +113,7 @@ export class AccessControlModule implements MonitoringModule {
     MINTER_ROLE: ethers.keccak256(ethers.toUtf8Bytes('MINTER_ROLE')),
     BURNER_ROLE: ethers.keccak256(ethers.toUtf8Bytes('BURNER_ROLE')),
     PAUSER_ROLE: ethers.keccak256(ethers.toUtf8Bytes('PAUSER_ROLE')),
-    UPGRADER_ROLE: ethers.keccak256(ethers.toUtf8Bytes('UPGRADER_ROLE'))
+    UPGRADER_ROLE: ethers.keccak256(ethers.toUtf8Bytes('UPGRADER_ROLE')),
   };
 
   /**
@@ -125,50 +126,50 @@ export class AccessControlModule implements MonitoringModule {
         type: 'boolean',
         required: false,
         description: 'Whether to monitor ownership patterns',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'checkRoles',
         type: 'boolean',
         required: false,
         description: 'Whether to monitor role-based access control',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'checkMultiSig',
         type: 'boolean',
         required: false,
         description: 'Whether to check for multi-signature requirements',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'checkTimelock',
         type: 'boolean',
         required: false,
         description: 'Whether to check for timelock mechanisms',
-        defaultValue: true
+        defaultValue: true,
       },
       {
         key: 'maxPrivilegedAddresses',
         type: 'number',
         required: false,
         description: 'Maximum number of privileged addresses allowed',
-        defaultValue: 5
+        defaultValue: 5,
       },
       {
         key: 'requireMultiSig',
         type: 'boolean',
         required: false,
         description: 'Whether multi-signature should be required for critical operations',
-        defaultValue: false
+        defaultValue: false,
       },
       {
         key: 'allowZeroAddressOwner',
         type: 'boolean',
         required: false,
         description: 'Whether zero address owner is allowed (renounced ownership)',
-        defaultValue: false
-      }
+        defaultValue: false,
+      },
     ];
   }
 
@@ -180,14 +181,24 @@ export class AccessControlModule implements MonitoringModule {
     const warnings: string[] = [];
 
     // Validate config types
-    const booleanFields = ['checkOwnership', 'checkRoles', 'checkMultiSig', 'checkTimelock', 'requireMultiSig', 'allowZeroAddressOwner'];
+    const booleanFields = [
+      'checkOwnership',
+      'checkRoles',
+      'checkMultiSig',
+      'checkTimelock',
+      'requireMultiSig',
+      'allowZeroAddressOwner',
+    ];
     for (const field of booleanFields) {
       if (config[field] !== undefined && typeof config[field] !== 'boolean') {
         errors.push(`${field} must be a boolean`);
       }
     }
 
-    if (config.maxPrivilegedAddresses !== undefined && (typeof config.maxPrivilegedAddresses !== 'number' || config.maxPrivilegedAddresses < 0)) {
+    if (
+      config.maxPrivilegedAddresses !== undefined &&
+      (typeof config.maxPrivilegedAddresses !== 'number' || config.maxPrivilegedAddresses < 0)
+    ) {
       errors.push('maxPrivilegedAddresses must be a non-negative number');
     }
 
@@ -202,7 +213,7 @@ export class AccessControlModule implements MonitoringModule {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -254,33 +265,41 @@ export class AccessControlModule implements MonitoringModule {
       this.log(context, 'info', `✅ Access control monitoring completed in ${executionTime}ms`);
 
       return {
-        status: issues.some(i => i.severity === SeverityLevel.ERROR || i.severity === SeverityLevel.CRITICAL) 
-          ? MonitoringStatus.FAIL : MonitoringStatus.PASS,
+        status: issues.some(
+          i => i.severity === SeverityLevel.ERROR || i.severity === SeverityLevel.CRITICAL
+        )
+          ? MonitoringStatus.FAIL
+          : MonitoringStatus.PASS,
         issues,
         executionTime,
         metadata: {
           analysis,
-          moduleConfig
-        }
+          moduleConfig,
+        },
       };
-
     } catch (error) {
       const executionTime = Date.now() - startTime;
-      this.log(context, 'error', `❌ Access control monitoring failed: ${(error as Error).message}`);
+      this.log(
+        context,
+        'error',
+        `❌ Access control monitoring failed: ${(error as Error).message}`
+      );
 
-      issues.push(this.createIssue(
-        'access-control-error',
-        'Access Control Monitoring Failed',
-        `Failed to analyze access control: ${(error as Error).message}`,
-        SeverityLevel.ERROR,
-        'execution'
-      ));
+      issues.push(
+        this.createIssue(
+          'access-control-error',
+          'Access Control Monitoring Failed',
+          `Failed to analyze access control: ${(error as Error).message}`,
+          SeverityLevel.ERROR,
+          'execution'
+        )
+      );
 
       return {
         status: MonitoringStatus.FAIL,
         issues,
         executionTime,
-        metadata: { error: (error as Error).message }
+        metadata: { error: (error as Error).message },
       };
     }
   }
@@ -290,7 +309,7 @@ export class AccessControlModule implements MonitoringModule {
    */
   private async analyzeAccessControl(context: MonitoringContext): Promise<AccessControlAnalysis> {
     const { diamond, provider } = context;
-    
+
     const analysis: AccessControlAnalysis = {
       hasOwnership: false,
       hasRoleBasedAccess: false,
@@ -299,7 +318,7 @@ export class AccessControlModule implements MonitoringModule {
       privilegedAddresses: [],
       hasMultiSig: false,
       hasTimelock: false,
-      securityIssues: []
+      securityIssues: [],
     };
 
     // Check for ownership pattern
@@ -340,15 +359,19 @@ export class AccessControlModule implements MonitoringModule {
       if (!ethers.isAddress(address)) {
         return undefined;
       }
-      
+
       // Try to call owner() function
-      const contract = new ethers.Contract(ethers.getAddress(address), ['function owner() view returns (address)'], provider);
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        ['function owner() view returns (address)'],
+        provider
+      );
       const owner = await contract.owner();
-      
+
       return {
         owner,
         transferrable: true, // Assume transferrable unless proven otherwise
-        renounced: owner === ethers.ZeroAddress
+        renounced: owner === ethers.ZeroAddress,
       };
     } catch {
       return undefined;
@@ -366,12 +389,16 @@ export class AccessControlModule implements MonitoringModule {
       if (!ethers.isAddress(address)) {
         return roles;
       }
-      
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function hasRole(bytes32 role, address account) view returns (bool)',
-        'function getRoleMemberCount(bytes32 role) view returns (uint256)',
-        'function getRoleMember(bytes32 role, uint256 index) view returns (address)'
-      ], provider);
+
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        [
+          'function hasRole(bytes32 role, address account) view returns (bool)',
+          'function getRoleMemberCount(bytes32 role) view returns (uint256)',
+          'function getRoleMember(bytes32 role, uint256 index) view returns (address)',
+        ],
+        provider
+      );
 
       // Check standard roles
       for (const [roleName, roleHash] of Object.entries(this.standardRoles)) {
@@ -379,7 +406,8 @@ export class AccessControlModule implements MonitoringModule {
           const memberCount = await contract.getRoleMemberCount(roleHash);
           if (memberCount > 0) {
             const members: string[] = [];
-            for (let i = 0; i < Math.min(memberCount, 10); i++) { // Limit to first 10 members
+            for (let i = 0; i < Math.min(memberCount, 10); i++) {
+              // Limit to first 10 members
               try {
                 const member = await contract.getRoleMember(roleHash, i);
                 members.push(member);
@@ -392,7 +420,7 @@ export class AccessControlModule implements MonitoringModule {
               roleHash,
               roleName,
               members,
-              memberCount: Number(memberCount)
+              memberCount: Number(memberCount),
             });
           }
         } catch {
@@ -415,13 +443,17 @@ export class AccessControlModule implements MonitoringModule {
       if (!ethers.isAddress(address)) {
         return false;
       }
-      
+
       // Check for common multi-sig interface patterns
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function getOwners() view returns (address[])',
-        'function required() view returns (uint256)'
-      ], provider);
-      
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        [
+          'function getOwners() view returns (address[])',
+          'function required() view returns (uint256)',
+        ],
+        provider
+      );
+
       await contract.getOwners();
       await contract.required();
       return true;
@@ -439,12 +471,14 @@ export class AccessControlModule implements MonitoringModule {
       if (!ethers.isAddress(address)) {
         return false;
       }
-      
+
       // Check for common timelock interface patterns
-      const contract = new ethers.Contract(ethers.getAddress(address), [
-        'function delay() view returns (uint256)'
-      ], provider);
-      
+      const contract = new ethers.Contract(
+        ethers.getAddress(address),
+        ['function delay() view returns (uint256)'],
+        provider
+      );
+
       await contract.delay();
       return true;
     } catch {
@@ -455,18 +489,23 @@ export class AccessControlModule implements MonitoringModule {
   /**
    * Monitor ownership patterns
    */
-  private monitorOwnership(analysis: AccessControlAnalysis, config: AccessControlModuleConfig): MonitoringIssue[] {
+  private monitorOwnership(
+    analysis: AccessControlAnalysis,
+    config: AccessControlModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     if (!analysis.hasOwnership) {
-      issues.push(this.createIssue(
-        'no-ownership',
-        'No Ownership Pattern Detected',
-        'Diamond does not implement ownership pattern',
-        SeverityLevel.WARNING,
-        'ownership',
-        'Consider implementing ownership pattern for administrative functions'
-      ));
+      issues.push(
+        this.createIssue(
+          'no-ownership',
+          'No Ownership Pattern Detected',
+          'Diamond does not implement ownership pattern',
+          SeverityLevel.WARNING,
+          'ownership',
+          'Consider implementing ownership pattern for administrative functions'
+        )
+      );
       return issues;
     }
 
@@ -475,26 +514,31 @@ export class AccessControlModule implements MonitoringModule {
     // Check for zero address owner
     if (ownership.owner === ethers.ZeroAddress) {
       if (!config.allowZeroAddressOwner) {
-        issues.push(this.createIssue(
-          'renounced-ownership',
-          'Ownership Renounced',
-          'Contract ownership has been renounced (owner is zero address)',
-          SeverityLevel.WARNING,
-          'ownership',
-          'Ensure this is intentional and proper governance mechanisms are in place'
-        ));
+        issues.push(
+          this.createIssue(
+            'renounced-ownership',
+            'Ownership Renounced',
+            'Contract ownership has been renounced (owner is zero address)',
+            SeverityLevel.WARNING,
+            'ownership',
+            'Ensure this is intentional and proper governance mechanisms are in place'
+          )
+        );
       }
     } else {
       // Check if owner is an EOA (simplified check)
-      if (ownership.owner.length === 42) { // Standard address length
-        issues.push(this.createIssue(
-          'eoa-owner',
-          'EOA Owner Detected',
-          'Contract owner appears to be an EOA rather than a contract',
-          SeverityLevel.INFO,
-          'ownership',
-          'Consider using a multi-signature wallet or governance contract as owner'
-        ));
+      if (ownership.owner.length === 42) {
+        // Standard address length
+        issues.push(
+          this.createIssue(
+            'eoa-owner',
+            'EOA Owner Detected',
+            'Contract owner appears to be an EOA rather than a contract',
+            SeverityLevel.INFO,
+            'ownership',
+            'Consider using a multi-signature wallet or governance contract as owner'
+          )
+        );
       }
     }
 
@@ -504,55 +548,69 @@ export class AccessControlModule implements MonitoringModule {
   /**
    * Monitor role-based access control
    */
-  private monitorRoles(analysis: AccessControlAnalysis, config: AccessControlModuleConfig): MonitoringIssue[] {
+  private monitorRoles(
+    analysis: AccessControlAnalysis,
+    config: AccessControlModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     if (!analysis.hasRoleBasedAccess) {
-      issues.push(this.createIssue(
-        'no-rbac',
-        'No Role-Based Access Control',
-        'Diamond does not implement role-based access control',
-        SeverityLevel.INFO,
-        'roles',
-        'Consider implementing role-based access control for better security'
-      ));
+      issues.push(
+        this.createIssue(
+          'no-rbac',
+          'No Role-Based Access Control',
+          'Diamond does not implement role-based access control',
+          SeverityLevel.INFO,
+          'roles',
+          'Consider implementing role-based access control for better security'
+        )
+      );
       return issues;
     }
 
     // Check for excessive privileged addresses
-    if (config.maxPrivilegedAddresses && analysis.privilegedAddresses.length > config.maxPrivilegedAddresses) {
-      issues.push(this.createIssue(
-        'excessive-privileged-addresses',
-        'Excessive Privileged Addresses',
-        `Found ${analysis.privilegedAddresses.length} privileged addresses, exceeds limit of ${config.maxPrivilegedAddresses}`,
-        SeverityLevel.WARNING,
-        'roles',
-        'Review and minimize the number of privileged addresses'
-      ));
+    if (
+      config.maxPrivilegedAddresses &&
+      analysis.privilegedAddresses.length > config.maxPrivilegedAddresses
+    ) {
+      issues.push(
+        this.createIssue(
+          'excessive-privileged-addresses',
+          'Excessive Privileged Addresses',
+          `Found ${analysis.privilegedAddresses.length} privileged addresses, exceeds limit of ${config.maxPrivilegedAddresses}`,
+          SeverityLevel.WARNING,
+          'roles',
+          'Review and minimize the number of privileged addresses'
+        )
+      );
     }
 
     // Check each role
     for (const role of analysis.roles) {
       if (role.memberCount === 0) {
-        issues.push(this.createIssue(
-          'empty-role',
-          'Empty Role Detected',
-          `Role ${role.roleName} has no members`,
-          SeverityLevel.WARNING,
-          'roles',
-          'Review if empty roles are intentional'
-        ));
+        issues.push(
+          this.createIssue(
+            'empty-role',
+            'Empty Role Detected',
+            `Role ${role.roleName} has no members`,
+            SeverityLevel.WARNING,
+            'roles',
+            'Review if empty roles are intentional'
+          )
+        );
       }
 
       if (role.memberCount === 1 && role.roleName === 'DEFAULT_ADMIN_ROLE') {
-        issues.push(this.createIssue(
-          'single-admin',
-          'Single Admin Role Member',
-          'Default admin role has only one member, creating single point of failure',
-          SeverityLevel.WARNING,
-          'roles',
-          'Consider having multiple admin role members for redundancy'
-        ));
+        issues.push(
+          this.createIssue(
+            'single-admin',
+            'Single Admin Role Member',
+            'Default admin role has only one member, creating single point of failure',
+            SeverityLevel.WARNING,
+            'roles',
+            'Consider having multiple admin role members for redundancy'
+          )
+        );
       }
     }
 
@@ -562,18 +620,23 @@ export class AccessControlModule implements MonitoringModule {
   /**
    * Monitor multi-signature requirements
    */
-  private monitorMultiSig(analysis: AccessControlAnalysis, config: AccessControlModuleConfig): MonitoringIssue[] {
+  private monitorMultiSig(
+    analysis: AccessControlAnalysis,
+    config: AccessControlModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     if (config.requireMultiSig && !analysis.hasMultiSig) {
-      issues.push(this.createIssue(
-        'missing-multisig',
-        'Missing Multi-Signature',
-        'Multi-signature is required but not detected',
-        SeverityLevel.ERROR,
-        'multisig',
-        'Implement multi-signature mechanism for critical operations'
-      ));
+      issues.push(
+        this.createIssue(
+          'missing-multisig',
+          'Missing Multi-Signature',
+          'Multi-signature is required but not detected',
+          SeverityLevel.ERROR,
+          'multisig',
+          'Implement multi-signature mechanism for critical operations'
+        )
+      );
     }
 
     return issues;
@@ -582,18 +645,23 @@ export class AccessControlModule implements MonitoringModule {
   /**
    * Monitor timelock mechanisms
    */
-  private monitorTimelock(analysis: AccessControlAnalysis, config: AccessControlModuleConfig): MonitoringIssue[] {
+  private monitorTimelock(
+    analysis: AccessControlAnalysis,
+    config: AccessControlModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     if (!analysis.hasTimelock) {
-      issues.push(this.createIssue(
-        'no-timelock',
-        'No Timelock Mechanism',
-        'No timelock mechanism detected for critical operations',
-        SeverityLevel.INFO,
-        'timelock',
-        'Consider implementing timelock for critical administrative functions'
-      ));
+      issues.push(
+        this.createIssue(
+          'no-timelock',
+          'No Timelock Mechanism',
+          'No timelock mechanism detected for critical operations',
+          SeverityLevel.INFO,
+          'timelock',
+          'Consider implementing timelock for critical administrative functions'
+        )
+      );
     }
 
     return issues;
@@ -602,21 +670,26 @@ export class AccessControlModule implements MonitoringModule {
   /**
    * Check for security issues
    */
-  private checkSecurityIssues(analysis: AccessControlAnalysis, config: AccessControlModuleConfig): MonitoringIssue[] {
+  private checkSecurityIssues(
+    analysis: AccessControlAnalysis,
+    config: AccessControlModuleConfig
+  ): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     // Check for banned addresses
     if (config.bannedAddresses) {
       for (const bannedAddress of config.bannedAddresses) {
         if (analysis.privilegedAddresses.includes(bannedAddress)) {
-          issues.push(this.createIssue(
-            'banned-address',
-            'Banned Address in Privileged Position',
-            `Banned address ${bannedAddress} has privileged access`,
-            SeverityLevel.CRITICAL,
-            'security',
-            'Remove banned address from privileged positions immediately'
-          ));
+          issues.push(
+            this.createIssue(
+              'banned-address',
+              'Banned Address in Privileged Position',
+              `Banned address ${bannedAddress} has privileged access`,
+              SeverityLevel.CRITICAL,
+              'security',
+              'Remove banned address from privileged positions immediately'
+            )
+          );
         }
       }
     }
@@ -652,7 +725,7 @@ export class AccessControlModule implements MonitoringModule {
       severity,
       category,
       recommendation,
-      metadata
+      metadata,
     };
   }
 }

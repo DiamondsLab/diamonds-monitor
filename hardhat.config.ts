@@ -1,30 +1,30 @@
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig } from 'hardhat/config';
 
 // Import our plugin for testing
-import "./src/index";
+import './src/index';
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.19",
-  
+  solidity: '0.8.19',
+
   // Diamond monitoring configuration
   diamondMonitor: {
-    defaultModules: ["FunctionSelector", "DiamondStructure"],
-    outputPath: "./test-reports",
+    defaultModules: ['FunctionSelector', 'DiamondStructure'],
+    outputPath: './test-reports',
     moduleConfig: {
       FunctionSelector: {
-        strictMode: false
+        strictMode: false,
       },
       DiamondStructure: {
-        requireStandardFacets: true
-      }
-    }
+        requireStandardFacets: true,
+      },
+    },
   },
-  
+
   networks: {
     hardhat: {
-      chainId: 1337
-    }
-  }
+      chainId: 1337,
+    },
+  },
 };
 
 export default config;

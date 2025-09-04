@@ -31,7 +31,7 @@ const monitor = new DiamondMonitor({
   provider,
   diamondAddress: '0x...',
   enableEvents: true,
-  enableMetrics: true
+  enableMetrics: true,
 });
 
 // Get diamond information
