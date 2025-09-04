@@ -1,0 +1,92 @@
+{
+  "name": "diamonds-monitor",
+  "version": "0.1.0",
+  "description": "Monitoring and management tools for ERC-2535 Diamond Proxy contracts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "dev": "ts-node src/index.ts",
+    "test": "mocha",
+    "test:watch": "mocha --watch",
+    "test:coverage": "nyc mocha",
+    "test:unit": "mocha test/unit/**/*.test.ts",
+    "test:integration": "mocha test/integration/**/*.test.ts",
+    "lint": "eslint src/**/*.ts test --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "yarn clean && yarn build && yarn test && yarn lint",
+    "publish:npm": "npm publish",
+    "publish:beta": "npm publish --tag beta"
+  },
+  "keywords": [
+    "ethereum",
+    "diamond",
+    "proxy",
+    "erc-2535",
+    "smart-contracts",
+    "monitoring",
+    "hardhat",
+    "hardhat-plugin",
+    "management",
+    "typescript",
+    "blockchain"
+  ],
+  "author": "Am0rfu5",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GeniusVentures/diamonds-monitor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GeniusVentures/diamonds-monitor/issues"
+  },
+  "homepage": "https://github.com/GeniusVentures/diamonds-monitor#readme",
+  "dependencies": {
+    "ethers": "^6.4.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.0",
+    "@types/chai": "^4.3.20",
+    "@types/jest": "^29.5.5",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^18.19.122",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "chai": "^4.3.0",
+    "chalk": "^4.1.2",
+    "diamonds": "https://github.com/GeniusVentures/diamonds.git#develop",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "hardhat": "^2.19.0",
+    "jest": "^29.7.0",
+    "mocha": "^10.0.0",
+    "prettier": "^3.0.3",
+    "rimraf": "^4.0.0",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "diamonds": "*",
+    "ethers": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=4.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "packageManager": "yarn@4.9.2"
+}
