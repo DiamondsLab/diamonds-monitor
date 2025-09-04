@@ -20,19 +20,21 @@ coverage.json
 typechain
 
 #Hardhat files
-cache
-artifacts
+cache/
+artifacts/
 
-.idea
+.idea/
 
-typechain-types
+typechain-types/
 fast.test.ts
-logs
-dist
+logs/
+dist/
 .vscode/settings.json
 
-tmp
-notes
+tmp*
+notes/
 
-diamonds-abi
-flat
+diamonds-abi/
+diamond-typeschain-types/
+flat/
+tsconfig.tsbuildinfo
