@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": false
+  },
+  "include": ["**/*.ts", "**/*.js"],
+  "exclude": []
+}

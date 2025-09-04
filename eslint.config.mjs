@@ -22,6 +22,7 @@ export default [
       "**/cache",
       "**/coverage",
       "**/dist/**",
+      "**/docs/**",
       // Project-specific directories to skip
       "**/typechain-types/**",
       "**/diamond-typechain-types/**",
