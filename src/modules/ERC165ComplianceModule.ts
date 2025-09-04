@@ -167,7 +167,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Validate module configuration
    */
-  public validateConfig(config: any): ValidationResult {
+  public validateConfig(config: Record<string, unknown>): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -214,7 +214,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Check if this module can monitor the given diamond
    */
-  public async canMonitor(diamond: DiamondInfo, network: NetworkInfo): Promise<boolean> {
+  public async canMonitor(_diamond: DiamondInfo, _network: NetworkInfo): Promise<boolean> {
     return true; // This module can monitor any diamond
   }
 
@@ -246,12 +246,12 @@ export class ERC165ComplianceModule implements MonitoringModule {
 
       // Check standard compliance
       if (moduleConfig.checkStandardCompliance) {
-        issues.push(...this.checkStandardCompliance(analysis, moduleConfig));
+        issues.push(...this.checkStandardCompliance(analysis));
       }
 
       // Check diamond standards
       if (moduleConfig.checkDiamondStandards) {
-        issues.push(...this.checkDiamondStandards(analysis, moduleConfig));
+        issues.push(...this.checkDiamondStandards(analysis));
       }
 
       // Check required interfaces
@@ -376,7 +376,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Check if a specific interface is supported
    */
-  private async checkInterfaceSupport(address: string, interfaceId: string, provider: any): Promise<boolean> {
+  private async checkInterfaceSupport(address: string, interfaceId: string, provider: ethers.Provider): Promise<boolean> {
     try {
       // Ensure address is properly formatted
       if (!ethers.isAddress(address)) {
@@ -408,7 +408,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Check standard compliance
    */
-  private checkStandardCompliance(analysis: ERC165ComplianceAnalysis, config: ERC165ComplianceModuleConfig): MonitoringIssue[] {
+  private checkStandardCompliance(analysis: ERC165ComplianceAnalysis): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     // Check for consistent token standard implementation
@@ -463,7 +463,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
   /**
    * Check diamond standard compliance
    */
-  private checkDiamondStandards(analysis: ERC165ComplianceAnalysis, config: ERC165ComplianceModuleConfig): MonitoringIssue[] {
+  private checkDiamondStandards(analysis: ERC165ComplianceAnalysis): MonitoringIssue[] {
     const issues: MonitoringIssue[] = [];
 
     const diamondCutSupported = analysis.supportedInterfaces.some(iface => iface.name === 'DIAMOND_CUT');
@@ -579,8 +579,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
     description: string,
     severity: SeverityLevel,
     category: string,
-    recommendation?: string,
-    metadata?: any
+    recommendation?: string
   ): MonitoringIssue {
     return {
       id,
@@ -588,8 +587,7 @@ export class ERC165ComplianceModule implements MonitoringModule {
       description,
       severity,
       category,
-      recommendation,
-      metadata
+      recommendation
     };
   }
 }

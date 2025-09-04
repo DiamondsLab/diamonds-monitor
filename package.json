@@ -19,7 +19,7 @@
     "test:coverage": "nyc mocha",
     "test:unit": "mocha test/unit/**/*.test.ts",
     "test:integration": "mocha test/integration/**/*.test.ts",
-    "lint": "eslint src/**/*.ts test --ext .ts --fix",
+    "lint": "cd ../../ && yarn lint packages/diamonds-monitor/src/**/*.ts",
     "format": "prettier --write \"src/**/*.{ts,js,json}\"",
     "clean": "rm -rf dist",
     "prepublishOnly": "yarn clean && yarn build && yarn test && yarn lint",

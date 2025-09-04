@@ -6,14 +6,12 @@
  */
 
 import * as fs from 'fs/promises';
-import * as path from 'path';
 import chalk from 'chalk';
 
 import {
   MonitoringReport,
   MonitoringStatus,
   SeverityLevel,
-  ModuleResult,
   MonitoringIssue
 } from '../core/types';
 

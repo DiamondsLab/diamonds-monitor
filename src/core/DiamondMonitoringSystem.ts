@@ -326,7 +326,7 @@ export class DiamondMonitoringSystem {
     const availableModules = Array.from(this.modules.values());
     
     // Filter by specific module IDs if provided
-    let filteredModules = moduleIds 
+    const filteredModules = moduleIds 
       ? availableModules.filter(module => moduleIds.includes(module.id))
       : availableModules;
 
