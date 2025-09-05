@@ -38,3 +38,4 @@ diamonds-abi/
 diamond-typeschain-types/
 flat/
 tsconfig.tsbuildinfo
+nyc/
