@@ -2,17 +2,20 @@
  * Hardhat Diamond Monitor Plugin
  * 
  * Provides comprehensive ERC-2535 Diamond contract monitoring capabilities
- * through Hardhat's diamondMonitor API
-  hre.diamondMonitor = {
-    monitorDiamond: hre.diamondMonitor.monitorDiamond,
-    createMonitoringSystem: hre.diamondMonitor.createMonitoringSystem,
-    listModules: hre.diamondMonitor.listModules
-  };
+ * through Hardhat's diamondMonitor API and standalone classes for direct Diamond integration.
+ * 
+ * Usage as Hardhat plugin:
+ *   hre.diamondMonitor.monitorDiamond(config)
+ * 
+ * Usage as standalone:
+ *   import { DiamondMonitor, FacetManager } from 'diamonds-monitor'
+ *   const monitor = new DiamondMonitor(diamond, provider)
  */
 
 import { extendConfig, extendEnvironment } from 'hardhat/config';
 import { HardhatConfig, HardhatUserConfig } from 'hardhat/types';
 
+// Hardhat plugin functionality
 import './tasks/monitor-diamond';
 import './tasks/list-modules';
 import './tasks/monitor-continuous';
@@ -167,3 +170,6 @@ extendEnvironment(hre => {
     },
   };
 });
+
+// Export standalone API for direct Diamond integration
+export * from './standalone';

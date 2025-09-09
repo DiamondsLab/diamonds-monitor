@@ -10,6 +10,7 @@ Professional monitoring and management tools for ERC-2535 Diamond Proxy contract
 - 🚨 **Event Monitoring**: Track diamond cut events and contract changes
 - 🛠️ **Developer Tools**: Utilities for diamond development and debugging
 - 📈 **Analytics**: Performance metrics and usage analytics
+- 🔧 **Dual Usage**: Works as a Hardhat plugin or standalone library
 
 ## Installation
 
@@ -19,35 +20,109 @@ npm install diamonds-monitor
 yarn add diamonds-monitor
 ```
 
-## Quick Start
+## Usage
+
+### Standalone API (Direct Diamond Integration)
+
+Use this approach when you have a `Diamond` instance from the diamonds module:
 
 ```typescript
-import { DiamondMonitor } from 'diamonds-monitor';
+import { DiamondMonitor, FacetManager } from 'diamonds-monitor';
+import { Diamond } from 'diamonds';
 import { ethers } from 'ethers';
 
-// Initialize provider and monitor
+// Assuming you have a Diamond instance from the diamonds module
+const diamond = new Diamond(config, repository);
 const provider = new ethers.JsonRpcProvider('YOUR_RPC_URL');
-const monitor = new DiamondMonitor({
-  provider,
-  diamondAddress: '0x...',
-  enableEvents: true,
-  enableMetrics: true,
+
+// Create monitor instance
+const monitor = new DiamondMonitor(diamond, provider, {
+  pollingInterval: 30000,
+  enableEventLogging: true,
+  enableHealthChecks: true
 });
+
+// Start monitoring
+await monitor.startMonitoring();
 
 // Get diamond information
 const info = await monitor.getDiamondInfo();
-console.log(`Diamond has ${info.facets.length} facets`);
+console.log(`Diamond at ${info.address} has ${info.facets.length} facets`);
 
 // Perform health check
-const health = await monitor.healthCheck();
+const health = await monitor.getHealthStatus();
 if (health.isHealthy) {
   console.log('Diamond is healthy ✅');
 } else {
-  console.error('Diamond has issues:', health.errors);
+  console.error('Diamond has issues:', health.checks.filter(c => c.status === 'failed'));
 }
 
-// Monitor events
-const events = await monitor.monitorEvents();
+// Track events
+await monitor.trackEvents((event) => {
+  console.log('DiamondCut event detected:', event);
+});
+
+// Use FacetManager for facet operations
+const facetManager = new FacetManager(diamond, provider);
+
+// List all facets
+const facets = await facetManager.listFacets();
+console.log('Facets:', facets);
+
+// Analyze facets
+const analysis = await facetManager.analyzeFacets();
+console.log(`Analysis: ${analysis.totalFacets} facets, ${analysis.totalSelectors} selectors`);
+
+// Validate selectors
+const validation = await facetManager.validateSelectors();
+if (!validation.isValid) {
+  console.warn('Selector conflicts detected:', validation.conflicts);
+}
+
+// Create diamond cuts
+const addCut = facetManager.createAddFacetCut(
+  '0x1234567890123456789012345678901234567890',
+  ['0x12345678', '0x87654321']
+);
+
+const validation = await facetManager.validateDiamondCut([addCut]);
+if (validation.isValid) {
+  console.log('Diamond cut is valid');
+} else {
+  console.error('Diamond cut errors:', validation.errors);
+}
+```
+
+### Hardhat Plugin API
+
+Use this approach when working within a Hardhat environment:
+
+```typescript
+import { HardhatUserConfig } from 'hardhat/config';
+import 'diamonds-monitor';
+
+// Your Hardhat config
+const config: HardhatUserConfig = {
+  // ... other config
+};
+
+// In your Hardhat scripts/tasks
+async function main() {
+  // Monitor a deployed diamond
+  const report = await hre.diamondMonitor.monitorDiamond({
+    diamondAddress: '0x...',
+    network: 'localhost',
+    modules: ['function-selectors', 'diamond-structure']
+  });
+  
+  console.log('Monitoring report:', report);
+  
+  // List available monitoring modules
+  const modules = hre.diamondMonitor.listModules();
+  console.log('Available modules:', modules);
+}
+
+```typescript
 console.log(`Found ${events.length} diamond cut events`);
 ```
 

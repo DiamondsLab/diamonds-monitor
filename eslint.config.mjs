@@ -99,6 +99,12 @@ export default [
   // Disable no-unused-vars in test files to allow test helpers and fixtures that may be unused
   {
     files: ["test/**/*.ts", "test/**/*.mts"],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: "./test/tsconfig.json",
+      },
+    },
     rules: {
   "@typescript-eslint/no-unused-vars": "off",
   // Allow use of `any` in tests

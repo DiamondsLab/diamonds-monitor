@@ -4,6 +4,16 @@
   "description": "Monitoring and management tools for ERC-2535 Diamond Proxy contracts",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./standalone": {
+      "types": "./dist/src/standalone.d.ts",
+      "default": "./dist/src/standalone.js"
+    }
+  },
   "files": [
     "dist/**/*",
     "src/**/*",
