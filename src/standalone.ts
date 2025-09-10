@@ -10,8 +10,10 @@
 export { DiamondMonitor } from './core/DiamondMonitor';
 export { FacetManager } from './core/FacetManager';
 
-// Utility functions
+// Utility functions and event handlers
 export * from './utils/DiamondUtils';
+export { EventHandlers } from './utils/eventHandlers';
+export type { DiamondCutAction, ParsedDiamondCutEvent } from './utils/eventHandlers';
 
 // Type definitions from DiamondMonitor
 export type {
