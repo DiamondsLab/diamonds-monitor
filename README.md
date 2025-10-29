@@ -1,11 +1,10 @@
 # Diamonds Monitor
 
-Professional monitoring and management tools for ERC-2535 Diamond Proxy contracts.
+Professional monitoring and reporting tools for ERC-2535 Diamond Proxy contracts that utilize the Diamonds module. 
 
 ## Features
 
 - 💎 **Diamond Contract Monitoring**: Real-time monitoring of diamond proxy contracts
-- 🔍 **Facet Management**: Comprehensive tools for managing facets and function selectors
 - 📊 **Health Checks**: Automated health monitoring and diagnostics
 - 🚨 **Event Monitoring**: Track diamond cut events and contract changes
 - 🛠️ **Developer Tools**: Utilities for diamond development and debugging
