@@ -2,7 +2,7 @@
 
 ## Overview
 
-A fully comprehensive report generation system for the hardhat-diamonds-monitor plugin that transforms basic monitoring reports into professional, multi-format output suitable for different use cases and audiences.
+A fully comprehensive report generation system for the @diamondslab/diamonds-monitor package that transforms basic monitoring reports into professional, multi-format output suitable for different use cases and audiences.
 
 ## Architecture
 

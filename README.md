@@ -13,11 +13,17 @@ Professional monitoring and reporting tools for ERC-2535 Diamond Proxy contracts
 
 ## Installation
 
+### For External Projects
+
 ```bash
-npm install diamonds-monitor
+npm install @diamondslab/diamonds-monitor
 # or
-yarn add diamonds-monitor
+yarn add @diamondslab/diamonds-monitor
 ```
+
+### Within Monorepo
+
+This package is part of the Diamonds Dev Env monorepo and is automatically available to other workspace packages.
 
 ## Usage
 
@@ -26,8 +32,8 @@ yarn add diamonds-monitor
 Use this approach when you have a `Diamond` instance from the diamonds module:
 
 ```typescript
-import { DiamondMonitor, FacetManager } from 'diamonds-monitor';
-import { Diamond } from 'diamonds';
+import { DiamondMonitor, FacetManager } from '@diamondslab/diamonds-monitor/standalone';
+import { Diamond } from '@diamondslab/diamonds';
 import { ethers } from 'ethers';
 
 // Assuming you have a Diamond instance from the diamonds module

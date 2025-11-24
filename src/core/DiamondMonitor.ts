@@ -1,9 +1,9 @@
-import { Provider, Contract, EventLog } from 'ethers';
-import { Diamond } from 'diamonds';
-import * as winston from 'winston';
-import * as fs from 'fs';
+import { Diamond } from '@diamondslab/diamonds';
+import { Contract, EventLog, Provider } from 'ethers';
 import { EventEmitter } from 'events';
-import { EventHandlers, ParsedDiamondCutEvent } from '../utils/eventHandlers';
+import * as fs from 'fs';
+import * as winston from 'winston';
+import { EventHandlers } from '../utils/eventHandlers';
 
 /**
  * Configuration options for DiamondMonitor

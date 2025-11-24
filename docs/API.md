@@ -16,15 +16,21 @@ A comprehensive Node.js package for monitoring ERC-2535 Diamond Proxy contracts 
 
 ## Installation
 
+### External Projects
+
 ```bash
-npm install diamonds-monitor
+npm install @diamondslab/diamonds-monitor @diamondslab/diamonds
 ```
+
+### Monorepo Workspace
+
+Already available via workspace dependencies. No installation needed.
 
 ## Quick Start
 
 ```typescript
-import { DiamondMonitor, FacetManager } from 'diamonds-monitor/standalone';
-import { Diamond } from 'diamonds';
+import { DiamondMonitor, FacetManager } from '@diamondslab/diamonds-monitor/standalone';
+import { Diamond } from '@diamondslab/diamonds';
 import { JsonRpcProvider } from 'ethers';
 
 // Create Diamond and provider
@@ -403,8 +409,8 @@ interface FacetAnalysis {
 ### Complete Monitoring Setup
 
 ```typescript
-import { DiamondMonitor, FacetManager, EventHandlers } from 'diamonds-monitor/standalone';
-import { Diamond } from 'diamonds';
+import { DiamondMonitor, FacetManager, EventHandlers } from '@diamondslab/diamonds-monitor/standalone';
+import { Diamond } from '@diamondslab/diamonds';
 import { JsonRpcProvider } from 'ethers';
 import winston from 'winston';
 
@@ -616,7 +622,7 @@ wss.on('connection', (ws) => {
 The package provides comprehensive error handling:
 
 ```typescript
-import { MonitoringError } from 'diamonds-monitor/standalone';
+import { MonitoringError } from '@diamondslab/diamonds-monitor/standalone';
 
 try {
   const health = await monitor.getHealthStatus();

@@ -12,8 +12,8 @@ The enhanced `trackEvents()` method now returns an EventEmitter that emits:
 ## Quick Start
 
 ```typescript
-import { DiamondMonitor } from 'diamonds-monitor/standalone';
-import { Diamond } from 'diamonds';
+import { DiamondMonitor } from '@diamondslab/diamonds-monitor/standalone';
+import { Diamond } from '@diamondslab/diamonds';
 
 // Create Diamond and provider instances
 const diamond = new Diamond('MyDiamond', 'mainnet');
@@ -195,7 +195,7 @@ console.log('Health Status:', {
 The `EventHandlers` utility provides advanced event parsing and analysis:
 
 ```typescript
-import { EventHandlers } from 'diamonds-monitor/standalone';
+import { EventHandlers } from '@diamondslab/diamonds-monitor/standalone';
 
 const eventHandlers = new EventHandlers(logger);
 

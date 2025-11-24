@@ -1,5 +1,5 @@
+import { Diamond } from '@diamondslab/diamonds';
 import { Provider } from 'ethers';
-import { Diamond } from 'diamonds';
 
 /**
  * Facet information structure

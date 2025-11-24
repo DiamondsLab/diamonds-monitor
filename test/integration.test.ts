@@ -1,8 +1,7 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, afterEach } from 'mocha';
-import { DiamondMonitor, FacetManager } from '../src/standalone';
-import { Diamond } from 'diamonds';
 import { Provider } from 'ethers';
+import { afterEach, beforeEach, describe, it } from 'mocha';
+import { DiamondMonitor, FacetManager } from '../src/standalone';
 import { MockProvider } from './helpers/MockProvider';
 
 describe('Integration Tests - Standalone API', () => {

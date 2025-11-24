@@ -1,11 +1,9 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach, afterEach } from 'mocha';
-import sinon from 'sinon';
-import { EventEmitter } from 'events';
-import { DiamondMonitor, MonitoringError } from '../src/core/DiamondMonitor';
-import { Diamond } from 'diamonds';
-import { JsonRpcProvider, Contract } from 'ethers';
 import * as ethers from 'ethers';
+import { JsonRpcProvider } from 'ethers';
+import { afterEach, beforeEach, describe, it } from 'mocha';
+import sinon from 'sinon';
+import { DiamondMonitor, MonitoringError } from '../src/core/DiamondMonitor';
 
 describe('DiamondMonitor - Comprehensive Tests', () => {
   let provider: JsonRpcProvider;

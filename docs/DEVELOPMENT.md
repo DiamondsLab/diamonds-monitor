@@ -8,9 +8,11 @@ This guide covers the development workflow for the diamonds-monitor development 
 
 ```bash
 git clone <repository-url>
-cd diamonds-monitor-devenv
+cd diamonds_dev_env
 yarn install
 ```
+
+**Note:** This package is part of the Diamonds Dev Env monorepo. Development happens within the monorepo context.
 
 ### 2. Environment Setup
 
@@ -28,14 +30,16 @@ cp .env.example .env
 The main development happens in the `packages/diamonds-monitor` directory:
 
 ```bash
-# Navigate to package directory
+# Build the package (from monorepo root)
+cd /workspaces/diamonds_dev_env
+yarn workspace @diamondslab/diamonds-monitor build
+
+# Start development mode with watch
+yarn workspace @diamondslab/diamonds-monitor build:watch
+
+# Or navigate to package directory
 cd packages/diamonds-monitor
-
-# Start development mode
 yarn build:watch
-
-# Or from root directory
-yarn monitor:dev
 ```
 
 ### Contract Development
@@ -59,14 +63,18 @@ npx hardhat run scripts/deploy/rpc/deploy.ts --network localhost  # In another
 3. **Contract Tests**: Test smart contract functionality
 
 ```bash
-# Run all tests
-yarn workspace:test
+# Run all monorepo tests (from root)
+cd /workspaces/diamonds_dev_env
+yarn test
+
+# Run specific integration test
+yarn hardhat test test/integration/e2e-diamond-monitoring.test.ts
 
 # Run with coverage
-yarn monitor:test:coverage
+yarn test:coverage
 
-# Watch mode for development
-yarn monitor:test:watch
+# Type check without emitting
+yarn tsc --noEmit
 ```
 
 ## 📦 Package Structure
@@ -298,22 +306,62 @@ Closes #123
 
 ## 🆘 Troubleshooting
 
+### Common Integration Issues
+
+#### Module Resolution Errors
+
+If you see `Cannot find module '@diamondslab/diamonds-monitor'`:
+
+```bash
+# Ensure workspace dependencies are installed
+cd /workspaces/diamonds_dev_env
+yarn install
+
+# Rebuild the package
+yarn workspace @diamondslab/diamonds-monitor build
+```
+
+#### TypeScript Compilation Errors
+
+If you see type mismatches between diamonds and diamonds-monitor:
+
+```bash
+# Check that workspace protocol is being used
+cat packages/diamonds-monitor/package.json | grep diamonds
+
+# Should show: "@diamondslab/diamonds": "workspace:*"
+
+# If not, update package.json and reinstall
+yarn install
+```
+
+#### Test Failures
+
+```bash
+# Run TypeScript check first
+yarn tsc --noEmit
+
+# Run tests with verbose output
+yarn hardhat test test/integration/e2e-diamond-monitoring.test.ts --verbose
+
+# Check Hardhat network
+yarn hardhat node  # Ensure local node is running if needed
+```
+
 ### Common Solutions
 
 ```bash
-# Clear all caches and reinstall
-rm -rf node_modules yarn.lock dist coverage
+# Clear all caches and reinstall (from monorepo root)
+cd /workspaces/diamonds_dev_env
+rm -rf node_modules .yarn/cache dist coverage
 yarn install
 
-# Reset TypeScript
-yarn monitor:clean
-yarn monitor:build
+# Reset TypeScript build
+yarn workspace @diamondslab/diamonds-monitor clean
+yarn workspace @diamondslab/diamonds-monitor build
 
-# Fix permission issues
-chmod +x .husky/pre-commit
-
-# Update dependencies
-yarn upgrade-interactive
+# Fix workspace symlinks
+yarn install --check-files
 ```
 
 ### Getting Help

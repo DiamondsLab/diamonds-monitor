@@ -1,8 +1,7 @@
 import { expect } from 'chai';
-import { describe, it, beforeEach } from 'mocha';
-import { FacetManager } from '../src/core/FacetManager';
-import { Diamond } from 'diamonds';
 import { JsonRpcProvider } from 'ethers';
+import { beforeEach, describe, it } from 'mocha';
+import { FacetManager } from '../src/core/FacetManager';
 
 describe('FacetManager', () => {
   let provider: JsonRpcProvider;
