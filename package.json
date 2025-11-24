@@ -64,6 +64,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@diamondslab/diamonds": "workspace:*",
     "@nomicfoundation/hardhat-ethers": "^4.0.0",
     "@types/chai": "^4.3.20",
     "@types/jest": "^29.5.5",
@@ -73,7 +74,6 @@
     "@typescript-eslint/parser": "^5.0.0",
     "chai": "^4.3.0",
     "chalk": "^4.1.2",
-    "diamonds": "https://github.com/GeniusVentures/diamonds.git#develop",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
