@@ -1,0 +1,73 @@
+# Development files
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+test/
+tests/
+coverage/
+.nyc_output/
+junit.xml
+
+# Build artifacts
+tsconfig.json
+tsconfig.*.json
+.tsbuildinfo
+
+# Documentation
+docs/
+*.md
+!README.md
+!LICENSE.md
+
+# Development tools
+.eslintrc*
+.prettierrc*
+.editorconfig
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+
+# Package managers
+node_modules/
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Source maps (optional - include if you want to publish them)
+# *.map
