@@ -15,7 +15,7 @@ export class MockProvider implements Provider {
     this.networkPromise = Promise.resolve({
       name: 'hardhat',
       chainId: 31337,
-      ensAddress: null
+      ensAddress: null,
     });
   }
 
@@ -115,7 +115,7 @@ export class MockProvider implements Provider {
     return {
       number: 1,
       timestamp: Math.floor(Date.now() / 1000),
-      hash: '0x1234567890123456789012345678901234567890123456789012345678901234'
+      hash: '0x1234567890123456789012345678901234567890123456789012345678901234',
     };
   }
 
@@ -131,12 +131,12 @@ export class MockProvider implements Provider {
     if (this.delay > 0) {
       await new Promise(resolve => setTimeout(resolve, this.delay));
     }
-    
+
     // Handle different function calls based on transaction data
     if (transaction.data) {
       // Extract function selector (first 4 bytes)
       const selector = transaction.data.slice(0, 10);
-      
+
       // Map common selectors to mock responses
       switch (selector) {
         case '0x7a0ed627': // facets()
@@ -147,7 +147,7 @@ export class MockProvider implements Provider {
           }
           // If no mock response, simulate a successful empty response
           return this.encodeFacetsResponse([]);
-          
+
         case '0xadfca15e': // facetFunctionSelectors(address)
           const selectorsResponse = this.mockResponses.get('facetFunctionSelectors');
           if (selectorsResponse) {
@@ -155,7 +155,7 @@ export class MockProvider implements Provider {
           }
           // If no mock response, simulate a successful empty response
           return this.encodeSelectorsResponse([]);
-          
+
         case '0x52ef6b2c': // facetAddresses()
           const addressesResponse = this.mockResponses.get('facetAddresses');
           if (addressesResponse) {
@@ -165,7 +165,7 @@ export class MockProvider implements Provider {
           return this.encodeAddressesResponse([]);
       }
     }
-    
+
     return '0x';
   }
 
@@ -181,26 +181,22 @@ export class MockProvider implements Provider {
     // For facets(), return ABI-encoded tuple(address,bytes4[])[] array
     try {
       const abiCoder = AbiCoder.defaultAbiCoder();
-      
+
       // Convert to the format expected by the ABI
-      const formattedFacets = facets.map(facet => [
-        facet.facetAddress,
-        facet.functionSelectors
-      ]);
-      
-      return abiCoder.encode(
-        ['tuple(address,bytes4[])[]'],
-        [formattedFacets]
-      );
+      const formattedFacets = facets.map(facet => [facet.facetAddress, facet.functionSelectors]);
+
+      return abiCoder.encode(['tuple(address,bytes4[])[]'], [formattedFacets]);
     } catch (error) {
       // Fallback to hardcoded response if ABI encoding fails
-      return '0x0000000000000000000000000000000000000000000000000000000000000020' + // offset to array
-             '0000000000000000000000000000000000000000000000000000000000000001' + // array length = 1
-             '0000000000000000000000001234567890123456789012345678901234567890' + // facetAddress
-             '0000000000000000000000000000000000000000000000000000000000000040' + // offset to selectors array
-             '0000000000000000000000000000000000000000000000000000000000000002' + // selectors array length = 2
-             '1234567800000000000000000000000000000000000000000000000000000000' + // selector 1
-             '8765432100000000000000000000000000000000000000000000000000000000'; // selector 2
+      return (
+        '0x0000000000000000000000000000000000000000000000000000000000000020' + // offset to array
+        '0000000000000000000000000000000000000000000000000000000000000001' + // array length = 1
+        '0000000000000000000000001234567890123456789012345678901234567890' + // facetAddress
+        '0000000000000000000000000000000000000000000000000000000000000040' + // offset to selectors array
+        '0000000000000000000000000000000000000000000000000000000000000002' + // selectors array length = 2
+        '1234567800000000000000000000000000000000000000000000000000000000' + // selector 1
+        '8765432100000000000000000000000000000000000000000000000000000000'
+      ); // selector 2
     }
   }
 
@@ -251,8 +247,8 @@ export class MockProvider implements Provider {
   async getFeeData(): Promise<any> {
     return {
       gasPrice: BigInt(20000000000),
-      maxFeePerGas: BigInt(20000000000), 
-      maxPriorityFeePerGas: BigInt(1000000000)
+      maxFeePerGas: BigInt(20000000000),
+      maxPriorityFeePerGas: BigInt(1000000000),
     };
   }
 
@@ -302,7 +298,7 @@ export class MockProvider implements Provider {
 
   // Mock other Provider interface requirements
   ready: Promise<any> = Promise.resolve(this);
-  
+
   // Add any other methods that might be called
   async destroy(): Promise<void> {
     // Mock cleanup
@@ -321,7 +317,7 @@ export class MockProvider implements Provider {
     return {
       number: blockTag || 1,
       timestamp: Math.floor(Date.now() / 1000),
-      hash: '0x1234567890123456789012345678901234567890123456789012345678901234'
+      hash: '0x1234567890123456789012345678901234567890123456789012345678901234',
     };
   }
 }
