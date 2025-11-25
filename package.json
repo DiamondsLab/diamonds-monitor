@@ -2,6 +2,10 @@
   "name": "@diamondslab/diamonds-monitor",
   "version": "1.0.0",
   "description": "Monitoring and management tools for ERC-2535 Diamond Proxy contracts",
+  "module": "dist/index.js",
+  "authors": [
+    "Am0rfu5"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -53,12 +57,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/GeniusVentures/diamonds-monitor.git"
+    "url": "https://github.com/diamondslab/diamonds-monitor"
   },
   "bugs": {
-    "url": "https://github.com/GeniusVentures/diamonds-monitor/issues"
+    "url": "https://github.com/diamondslab/diamonds-monitor/issues"
   },
-  "homepage": "https://github.com/GeniusVentures/diamonds-monitor#readme",
+  "homepage": "https://github.com/diamondslab/diamonds-monitor#readme",
   "dependencies": {
     "ethers": "^6.4.0",
     "winston": "^3.17.0"
