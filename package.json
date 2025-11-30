@@ -1,6 +1,6 @@
 {
   "name": "@diamondslab/diamonds-monitor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Monitoring and management tools for ERC-2535 Diamond Proxy contracts",
   "module": "dist/index.js",
   "authors": [
@@ -92,7 +92,7 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "diamonds": "*",
+    "@diamondslab/diamonds": "*",
     "ethers": "^6.0.0"
   },
   "engines": {
