@@ -16,13 +16,18 @@
     "./standalone": {
       "types": "./dist/standalone.d.ts",
       "default": "./dist/standalone.js"
-    }
+    },
+    "./dist/*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist/**/*",
-    "src/**/*",
-    "README.md",
-    "LICENSE"
+    "dist/",
+    "/LICENSE",
+    "/README.md",
+    "/CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsc --build",
