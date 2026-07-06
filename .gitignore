@@ -32,10 +32,13 @@ dist/
 .vscode/settings.json
 
 tmp*
-notes/
 
 diamonds-abi/
 flat/
 tsconfig.tsbuildinfo
 .nyc_output
 *.tsbuildinfo
+
+# notes/: scratch stays local, but the release runbook is tracked
+notes/*
+!notes/RELEASE_RUNBOOK.md
