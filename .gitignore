@@ -37,3 +37,5 @@ notes/
 diamonds-abi/
 flat/
 tsconfig.tsbuildinfo
+.nyc_output
+*.tsbuildinfo
