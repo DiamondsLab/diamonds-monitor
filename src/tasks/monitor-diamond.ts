@@ -318,7 +318,7 @@ async function loadDiamondInfo(
   ];
 
   let diamondDeployment: any = null;
-  let deploymentFilePath: string = '';
+  let deploymentFilePath = '';
 
   for (const filePath of possiblePaths) {
     if (fs.existsSync(filePath)) {
@@ -625,7 +625,9 @@ async function runContinuousMonitoring(
   setInterval(runMonitoring, interval);
 
   // Keep process alive
-  return new Promise(() => {});
+  return new Promise(() => {
+    /* never resolves: keep the monitor task alive until the process is signalled */
+  });
 }
 
 /**

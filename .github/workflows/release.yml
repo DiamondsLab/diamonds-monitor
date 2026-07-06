@@ -1,0 +1,50 @@
+name: Release
+
+# Tag-only: publishing is irreversible, so this never runs on PRs or branch pushes.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write # OIDC: npm Trusted Publishing auth + provenance attestation
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          # Do NOT set registry-url: it injects a placeholder NODE_AUTH_TOKEN and npm
+          # then skips the OIDC trusted-publisher exchange (masked E404).
+
+      - name: Upgrade npm (Trusted Publishing needs npm >= 11.5.1)
+        run: |
+          npm install -g npm@latest
+          npm --version
+
+      - name: Enable Corepack (Yarn)
+        run: corepack enable yarn
+
+      - name: Install dependencies
+        run: yarn install --no-immutable
+
+      - name: Build
+        run: yarn build
+
+      # OIDC Trusted Publishing (configured on npmjs.com for DiamondsLab/diamonds-monitor):
+      # no NPM_TOKEN — auth from the OIDC id-token; provenance generated.
+      - name: Publish (npm OIDC Trusted Publishing)
+        env:
+          NODE_AUTH_TOKEN: '' # any set token disables the OIDC exchange
+        run: |
+          echo "npm: $(npm --version)"
+          echo "OIDC id-token URL present: ${ACTIONS_ID_TOKEN_REQUEST_URL:+YES}"
+          npm publish --provenance --access public
