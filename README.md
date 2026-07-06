@@ -11,6 +11,11 @@ Professional monitoring and reporting tools for ERC-2535 Diamond Proxy contracts
 - 📈 **Analytics**: Performance metrics and usage analytics
 - 🔧 **Dual Usage**: Works as a Hardhat plugin or standalone library
 
+## Prerequisites
+
+- **Node.js** ≥ 18
+- **Yarn** ≥ 4 (workspace protocol support)
+
 ## Installation
 
 ### For External Projects
@@ -24,6 +29,17 @@ yarn add @diamondslab/diamonds-monitor
 ### Within Monorepo
 
 This package is part of the Diamonds Dev Env monorepo and is automatically available to other workspace packages.
+
+## Entry points
+
+The package exposes the following subpaths via its `exports` map:
+
+| Import specifier                          | Purpose                                                                 |
+| ----------------------------------------- | ----------------------------------------------------------------------- |
+| `@diamondslab/diamonds-monitor`           | Main entry (`.`) — Hardhat plugin registration plus a re-export of the standalone API. |
+| `@diamondslab/diamonds-monitor/standalone`| Standalone API (`DiamondMonitor`, `FacetManager`, diamond utilities) with no Hardhat dependency. |
+| `@diamondslab/diamonds-monitor/dist/*`    | Deep back-compat access to any built module (types + JS resolve together). |
+| `@diamondslab/diamonds-monitor/package.json` | The package manifest.                                                |
 
 ## Usage
 
@@ -104,7 +120,7 @@ Use this approach when working within a Hardhat environment:
 
 ```typescript
 import { HardhatUserConfig } from 'hardhat/config';
-import 'diamonds-monitor';
+import '@diamondslab/diamonds-monitor';
 
 // Your Hardhat config
 const config: HardhatUserConfig = {
@@ -126,9 +142,6 @@ async function main() {
   const modules = hre.diamondMonitor.listModules();
   console.log('Available modules:', modules);
 }
-
-```typescript
-console.log(`Found ${events.length} diamond cut events`);
 ```
 
 ## API Reference
@@ -226,10 +239,10 @@ This package is part of the diamonds-monitor development environment. To contrib
 
 ## License
 
-MIT © GeniusVentures
+MIT © DiamondsLab
 
 ## Support
 
-- 🐛 [Report Issues](https://github.com/GeniusVentures/diamonds-monitor/issues)
-- 📖 [Documentation](https://github.com/GeniusVentures/diamonds-monitor#readme)
-- 💬 [Discussions](https://github.com/GeniusVentures/diamonds-monitor/discussions)
+- 🐛 [Report Issues](https://github.com/DiamondsLab/diamonds-monitor/issues)
+- 📖 [Documentation](https://github.com/DiamondsLab/diamonds-monitor#readme)
+- 💬 [Discussions](https://github.com/DiamondsLab/diamonds-monitor/discussions)
