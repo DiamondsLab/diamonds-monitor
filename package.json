@@ -66,9 +66,9 @@
     "url": "git+https://github.com/DiamondsLab/diamonds-monitor.git"
   },
   "bugs": {
-    "url": "https://github.com/diamondslab/diamonds-monitor/issues"
+    "url": "https://github.com/DiamondsLab/diamonds-monitor/issues"
   },
-  "homepage": "https://github.com/diamondslab/diamonds-monitor#readme",
+  "homepage": "https://github.com/DiamondsLab/diamonds-monitor#readme",
   "dependencies": {
     "ethers": "^6.4.0",
     "winston": "^3.17.0"
