@@ -458,7 +458,7 @@ ${rows.join('\n')}`;
   /**
    * Generate ASCII progress bar
    */
-  private generateProgressBar(percentage: number, width: number = 20): string {
+  private generateProgressBar(percentage: number, width = 20): string {
     const filled = Math.round((percentage / 100) * width);
     const empty = width - filled;
     const bar = '█'.repeat(filled) + '░'.repeat(empty);

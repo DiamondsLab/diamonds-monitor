@@ -33,12 +33,13 @@
     "test:coverage": "nyc mocha",
     "test:unit": "mocha test/unit/**/*.test.ts",
     "test:integration": "mocha test/integration/**/*.test.ts",
-    "lint": "cd ../../ && yarn lint packages/diamonds-monitor/src/**/*.ts",
+    "lint": "eslint src",
     "format": "prettier --write \"src/**/*.{ts,js,json}\"",
     "clean": "rm -rf dist coverage .nyc_output tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build && yarn test && yarn lint",
     "publish:npm": "npm publish",
-    "publish:beta": "npm publish --tag beta"
+    "publish:beta": "npm publish --tag beta",
+    "lint:fix": "eslint src --fix"
   },
   "keywords": [
     "ethereum",

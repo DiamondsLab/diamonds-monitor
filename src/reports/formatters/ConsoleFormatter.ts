@@ -326,7 +326,7 @@ export class ConsoleFormatter implements ReportFormatter {
   /**
    * Generate a progress bar
    */
-  private generateProgressBar(percentage: number, c: any, width: number = 40): string {
+  private generateProgressBar(percentage: number, c: any, width = 40): string {
     const filled = Math.round((percentage / 100) * width);
     const empty = width - filled;
     const bar = '█'.repeat(filled) + '░'.repeat(empty);
@@ -456,7 +456,7 @@ export class ConsoleFormatter implements ReportFormatter {
   /**
    * Wrap text to specified width with indentation
    */
-  private wrapText(text: string, width: number, indent: string = ''): string {
+  private wrapText(text: string, width: number, indent = ''): string {
     const words = text.split(' ');
     const lines: string[] = [];
     let currentLine = '';
